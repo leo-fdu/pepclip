@@ -1,48 +1,48 @@
-# PepCLIP 项目约定
+# PepCLIP Project Guidelines
 
-## 项目目标与方法
+## Project Goals and Approach
 
-- 本项目研究短蛋白／多肽的跨模态表示对齐：将蛋白语言模型（PLM）的肽链表示与分子图预训练模型的表示，通过 CLIP 式对比学习对齐。
-- 训练数据的肽链长度范围为 **10–100 aa（包含边界）**。数据处理应记录残基计数规则，特别是非天然残基与修饰的处理方式。
-- 基线冻结两种模态的预训练编码器，仅训练投影头；每个模态使用一个双层 MLP（两个线性层，中间带非线性激活）映射到共享表示空间。
-- 使用配对的同一肽分子作为正样本，采用 CLIP 式双向对比损失。实现时明确归一化方式、温度参数、负样本构造与重复样本处理策略。
-- 项目将比较多种 PLM 与分子图预训练模型的组合，不应把某个模型组合硬编码为唯一方案。
-- 当前已确定：最终使用分子图编码器及其训练后的投影头；训练仅使用天然肽序列（10–100 aa），第一版从 UniRef90 代表序列 FASTA 筛选，以 ESM2 和 GROVER 为初始组合。
-- 从序列构建标准化线性肽图，固定 L 型标准氨基酸、游离末端、无额外二硫键／环化／修饰的约定；不得宣称这是每条序列在体内的真实化学结构。UniRef90 来源本身也不等于每条序列都有实验验证。
-- 默认不截取长蛋白。UniRef90 代表条目划分只是基线划分，不代表严格低同源测试；需要更严格评估时传入外部相似性分组并审计跨划分相似度。
-- 目标是获得包含更多层次信息、适用于环肽及含非天然残基修饰肽的肽编码器。**这些是待验证的研究目标，不是已经证实的能力。**
+- This project studies cross-modal representation alignment for short proteins and peptides: align peptide representations from a protein language model (PLM) with representations from a pretrained molecular graph model using CLIP-style contrastive learning.
+- Training peptides must be **10–100 amino acids long, inclusive**. Data processing must document residue-counting rules, especially how noncanonical residues and modifications are handled.
+- The baseline freezes both pretrained encoders and trains only the projection heads. Each modality uses a two-layer MLP (two linear layers with a nonlinear activation between them) to map representations into a shared space.
+- Use paired representations of the same peptide molecule as positive pairs and a CLIP-style bidirectional contrastive loss. Specify normalization, temperature, negative-sample construction, and duplicate handling explicitly.
+- The project will compare multiple combinations of PLMs and pretrained molecular graph models. Do not hard-code one model combination as the only option.
+- Current decisions: the final encoder consists of the molecular graph encoder and its trained projection head. Training uses only natural peptide sequences (10–100 aa), initially filtered from the UniRef90 representative-sequence FASTA, with ESM2 and GROVER as the initial combination.
+- Construct standardized linear peptide graphs from sequences using standard L-amino acids, free termini, and no additional disulfide bonds, cyclization, or modifications. Do not claim that these graphs represent the actual chemical structure of each sequence in vivo. A UniRef90 source does not imply experimental validation for every sequence.
+- Do not crop long proteins by default. Splitting UniRef90 representative entries provides a baseline split, not a strict low-homology test. For stricter evaluation, supply external similarity groups and audit similarity across splits.
+- The research goal is a peptide encoder that captures information at more levels and supports cyclic peptides and modified peptides containing noncanonical residues. **These are research goals that require validation, not demonstrated capabilities.**
 
-## 科学与实现约束
+## Scientific and Implementation Constraints
 
-- 修改前先阅读相关代码、配置与实验记录；区分已实现的事实、已有实验结果、待验证假设及计划。
-- 冻结编码器应包括禁止参数梯度更新，并明确其运行模式，避免 dropout 或运行统计量变化影响表示的可复现性。使用缓存表示时，记录缓存对应的编码器版本与预处理配置。
-- 分子图输入应保留任务需要的化学连接、环化、立体化学和非天然残基信息。明确 PLM 对非标准残基的编码策略；不得静默替换、丢弃或线性化后仍声称保留了相应信息。
-- 对齐本身不保证获得环肽或修饰肽的泛化能力。评估应明确输入模态、推理时使用的编码器／投影表示、支持的分子范围，以及训练数据对这些范围的覆盖。
-- 记录数据来源与版本、清洗规则、划分方法、随机种子、模型名称与版本、池化方式、投影维度、损失和优化配置。
-- 防止同一分子、重复序列及高度相似肽跨数据划分造成泄漏；明确环化或修饰不同但序列相同的样本如何配对及作为负样本使用。
-- 比较模型组合时尽可能固定数据划分、训练预算和评估流程；与未对齐表示作对照。改变实验语义或比较条件时，明确说明对可比性的影响。
-- 不覆盖原始数据，不静默改变划分或指标。使用显式配置，将数据处理、编码、投影、训练与评估逻辑分离；保持修改范围最小。
+- Read the relevant code, configurations, and experiment records before making changes. Distinguish implemented behavior, existing experimental results, unvalidated hypotheses, and plans.
+- Freezing an encoder must disable parameter gradient updates and explicitly set its runtime mode so that dropout or changes in running statistics do not undermine representation reproducibility. For cached representations, record the encoder version and preprocessing configuration used to produce the cache.
+- Molecular graph inputs must preserve the chemical connectivity, cyclization, stereochemistry, and noncanonical residue information needed by the task. Specify how the PLM encodes nonstandard residues. Do not silently replace, discard, or linearize such information while claiming it is preserved.
+- Alignment alone does not guarantee generalization to cyclic or modified peptides. Evaluation must specify the input modality, the encoder or projected representation used at inference, the supported molecular scope, and the training data's coverage of that scope.
+- Record data sources and versions, cleaning rules, splitting methods, random seeds, model names and versions, pooling methods, projection dimensions, loss settings, and optimization settings.
+- Prevent leakage across splits from identical molecules, duplicate sequences, and highly similar peptides. Specify how samples with the same sequence but different cyclization or modifications are paired and used as negatives.
+- Keep data splits, training budgets, and evaluation procedures fixed across model combinations where possible, and compare against unaligned representations. If experimental semantics or comparison conditions change, explain the impact on comparability.
+- Do not overwrite raw data or silently change splits or metrics. Use explicit configurations, separate data processing, encoding, projection, training, and evaluation logic, and keep changes minimal.
 
-## 运行环境与配置
+## Runtime Environment and Configuration
 
-- **本项目代码在其他机器上运行，本机仅用于开发；不以本机环境是否可运行作为实现工作的前提。** 除非用户另有明确要求，不在本机安装或修复运行依赖、配置 GPU 环境、下载用于运行的模型权重，也不为适配本机而修改实验实现。
-- 将目标运行环境所需的配置写清楚并纳入版本控制：Python、PyTorch、CUDA 与相关依赖版本，上游 ESM／GROVER 的安装方式及固定版本或 commit，权重获取方式、路径约定、必要环境变量，以及数据处理、表示提取、训练、评估和恢复命令。
-- 目标机器的硬件或软件信息尚未提供时，将相关配置设为显式参数，并标明待确认项；不得将本机 macOS、已有 Conda 环境或绝对路径作为目标运行环境默认值。
-- 本机缺少运行依赖不构成阻塞，不为执行测试而额外配置本机环境。可进行无需新增环境配置的静态检查；需要真实模型、GPU 或目标环境的验证，应提供明确命令并如实标记为尚未执行，不将本机检查等同于目标环境验证。
+- **Project code runs on another machine; this machine is for development only. Local executability is not a prerequisite for implementation work.** Unless the user explicitly requests otherwise, do not install or repair runtime dependencies locally, configure a GPU environment, download model weights for execution, or change experimental implementations to accommodate this machine.
+- Document and version-control the target runtime configuration: Python, PyTorch, CUDA, and related dependency versions; installation instructions and pinned versions or commits for upstream ESM/GROVER; weight acquisition instructions; path conventions; required environment variables; and commands for data processing, representation extraction, training, evaluation, and resuming training.
+- If the target machine's hardware or software details are unavailable, expose the relevant settings as explicit parameters and mark unresolved items. Do not use this machine's macOS environment, existing Conda environments, or absolute paths as target runtime defaults.
+- Missing local runtime dependencies are not a blocker. Do not set up additional local environments merely to run tests. Static checks that require no additional environment setup are allowed. For validation requiring real models, a GPU, or the target environment, provide explicit commands and clearly mark it as not executed. Do not equate local checks with target-environment validation.
 
-## Git 与提交规则
+## Git and Commit Rules
 
-- **每次完成项目修改后必须提交 Git commit**，包括代码、配置、文档和 `.gitignore` 修改。一个提交应对应一个可解释的完整变更；不得在任务结束时留下本次已完成却未提交的修改。
-- 提交前检查 `git status`、变更内容及暂存区；只按明确路径暂存本次相关文件，禁止使用 `git add .` 或无差别暂存。
-- 保留用户或其他任务的已有修改，不覆盖、不撤销、不擅自纳入本次提交；不自动推送远程仓库，不改写历史。
-- checkpoint、模型权重、`.DS_Store`、缓存、运行日志、环境目录、密钥及其他不应版本控制的产物必须写入 `.gitignore`，不得提交。
-- `.gitignore` 不会移除已被追踪的文件。发现不应追踪的文件时，应检查索引并停止追踪，同时保留本地所需文件；若涉及历史敏感信息，明确报告，不擅自改写历史。
-- 对其他文件，能明确判断是否应被追踪时自行处理：源代码、可复现实验配置、依赖清单、文档及小型测试夹具通常应追踪；大型数据、可再生的中间产物及机器专属文件通常不应追踪。
-- **无法明确判断某个文件是否应该被 Git 追踪时，交由用户判断。** 不擅自添加、删除或用过宽的忽略规则隐藏不确定文件。
-- 大型模型或数据使用外部存储，仓库保留必要的获取方式、版本、校验信息与元数据。需要版本控制的小型结果摘要或图表应明确选择，不将整个输出目录无差别提交。
+- **Commit every completed project change**, including code, configuration, documentation, and `.gitignore` changes. Each commit must represent a coherent, explainable change. Do not leave completed changes from the current task uncommitted at the end of the task.
+- Before committing, inspect `git status`, the diff, and the staging area. Stage only explicit paths relevant to the current task. Never use `git add .` or indiscriminate staging.
+- Preserve existing changes from the user or other tasks. Do not overwrite, revert, or include them in the current commit without authorization. Do not automatically push to a remote or rewrite history.
+- Add checkpoints, model weights, `.DS_Store`, caches, runtime logs, environment directories, secrets, and other artifacts that should not be version-controlled to `.gitignore`. Do not commit them.
+- `.gitignore` does not remove already tracked files. If a file should not be tracked, inspect the index and stop tracking it while retaining any locally needed copy. If sensitive information exists in history, report it explicitly and do not rewrite history without authorization.
+- For other files, decide independently when the tracking policy is clear: source code, reproducible experiment configurations, dependency lists, documentation, and small test fixtures should generally be tracked; large datasets, reproducible intermediate artifacts, and machine-specific files generally should not.
+- **If it is unclear whether a file should be tracked, ask the user to decide.** Do not add or remove it on your own or hide uncertain files behind overly broad ignore rules.
+- Store large models and datasets externally. Keep the necessary acquisition instructions, versions, checksums, and metadata in the repository. Explicitly select any small result summaries or figures that need version control; do not commit entire output directories indiscriminately.
 
-## 验证与交付
+## Validation and Delivery
 
-- 完成修改后执行与变更相适应的最小有效验证；文档和忽略规则修改检查内容、Git 差异与忽略行为，无需为其添加形式化测试。
-- 训练相关修改应按影响范围检查冻结状态、张量形状、配对关系、损失计算和梯度流；未运行完整训练时如实说明。
-- 交付时简要说明改了什么、验证了什么、未验证的事项，以及提交哈希。
+- After making changes, perform the smallest effective validation appropriate to the change. For documentation and ignore-rule changes, inspect the content, Git diff, and ignore behavior; no formal tests need to be added.
+- For training-related changes, check freezing, tensor shapes, pairing, loss computation, and gradient flow as appropriate to the affected scope. State explicitly when full training has not been run.
+- At delivery, briefly describe what changed, what was validated, what remains unverified, and the commit hash.
