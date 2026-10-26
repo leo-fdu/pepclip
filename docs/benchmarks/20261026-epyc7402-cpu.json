@@ -1,0 +1,561 @@
+{
+  "scaling": {
+    "status": "complete",
+    "started_utc": "2026-10-26T12:22:46.023684+00:00",
+    "host_platform": "Linux-5.15.0-128-generic-x86_64-with-glibc2.35",
+    "machine": "x86_64",
+    "python": "3.10.12",
+    "logical_cpus": 10,
+    "sample_sha256": "c03f1e8a01cd488c993b483970a34915a3d0c10bf2be314221a4b942f0f54d49",
+    "mean_timed_length": 75.630859375,
+    "source_sha256": "0e87f105b8635cff23594e1a861640ead52d161aac4ef537853340500d9c8eb7",
+    "settings": {
+      "grover_source": "/home/ubuntu/pepclip-encoder-bench-20261026/grover-source",
+      "sample": "/home/ubuntu/pepclip-encoder-bench-20261026/sample.json",
+      "output": "/home/ubuntu/pepclip-encoder-bench-20261026/cpu-cloud-scaling/results.json",
+      "workers": [
+        1,
+        4,
+        8,
+        10
+      ],
+      "samples": 512,
+      "chunk_size": 16,
+      "repeats": 2
+    },
+    "scope": "sequence_to_smiles + unchanged GROVER MolGraph + BatchMolGraph + float32/int64 NPZ compression + fsync + exact decompression roundtrip + IPC; no models or GPUs",
+    "cases": [
+      {
+        "workers": 1,
+        "status": "complete",
+        "rates": [
+          6.8312523034425645,
+          6.839699387184914
+        ],
+        "repeats": [
+          {
+            "seconds": 74.9496545080001,
+            "raw_bytes": 616722712,
+            "compressed_bytes": 10245022,
+            "worker_pids": [
+              24668
+            ],
+            "max_worker_rss_mib": 520.57421875
+          },
+          {
+            "seconds": 74.8570910819999,
+            "raw_bytes": 616722712,
+            "compressed_bytes": 10245022,
+            "worker_pids": [
+              24668
+            ],
+            "max_worker_rss_mib": 520.57421875
+          }
+        ],
+        "startup_seconds": 1.3673176230004174,
+        "median_samples_per_second": 6.83547584531374
+      },
+      {
+        "workers": 4,
+        "status": "complete",
+        "rates": [
+          21.57790624608981,
+          21.41387962417431
+        ],
+        "repeats": [
+          {
+            "seconds": 23.72797407500002,
+            "raw_bytes": 616722712,
+            "compressed_bytes": 10245022,
+            "worker_pids": [
+              24760,
+              24763,
+              24764,
+              24765
+            ],
+            "max_worker_rss_mib": 519.96484375
+          },
+          {
+            "seconds": 23.909726260999378,
+            "raw_bytes": 616722712,
+            "compressed_bytes": 10245022,
+            "worker_pids": [
+              24760,
+              24763,
+              24764,
+              24765
+            ],
+            "max_worker_rss_mib": 519.96484375
+          }
+        ],
+        "startup_seconds": 2.145955473999493,
+        "median_samples_per_second": 21.495892935132062
+      },
+      {
+        "workers": 8,
+        "status": "complete",
+        "rates": [
+          33.57787566122892,
+          32.86231510514802
+        ],
+        "repeats": [
+          {
+            "seconds": 15.248135563000687,
+            "raw_bytes": 616722712,
+            "compressed_bytes": 10245022,
+            "worker_pids": [
+              24778,
+              24781,
+              24782,
+              24783,
+              24784,
+              24785,
+              24786,
+              24787
+            ],
+            "max_worker_rss_mib": 516.3359375
+          },
+          {
+            "seconds": 15.580156125999565,
+            "raw_bytes": 616722712,
+            "compressed_bytes": 10245022,
+            "worker_pids": [
+              24778,
+              24781,
+              24782,
+              24783,
+              24784,
+              24785,
+              24786,
+              24787
+            ],
+            "max_worker_rss_mib": 516.3359375
+          }
+        ],
+        "startup_seconds": 2.186064659001204,
+        "median_samples_per_second": 33.22009538318847
+      },
+      {
+        "workers": 10,
+        "status": "complete",
+        "rates": [
+          38.46903290073605,
+          35.29742510825194
+        ],
+        "repeats": [
+          {
+            "seconds": 13.309406590000435,
+            "raw_bytes": 616722712,
+            "compressed_bytes": 10245022,
+            "worker_pids": [
+              24794,
+              24797,
+              24798,
+              24799,
+              24800,
+              24801,
+              24802,
+              24803,
+              24804,
+              24805
+            ],
+            "max_worker_rss_mib": 515.3984375
+          },
+          {
+            "seconds": 14.505307354000252,
+            "raw_bytes": 616722712,
+            "compressed_bytes": 10245022,
+            "worker_pids": [
+              24794,
+              24797,
+              24798,
+              24799,
+              24800,
+              24801,
+              24802,
+              24803,
+              24804,
+              24805
+            ],
+            "max_worker_rss_mib": 519.22265625
+          }
+        ],
+        "startup_seconds": 2.2561234980003064,
+        "median_samples_per_second": 36.883229004494
+      }
+    ],
+    "completed_utc": "2026-10-26T12:27:12.159421+00:00",
+    "first_chunk_arrays_sha256": "6b8488451deff2a30de411d3a2aa6446d3f5fdcc06b6a16dca92b56ee7e30cf7"
+  },
+  "sustained": {
+    "status": "complete",
+    "started_utc": "2026-10-26T12:27:36.003129+00:00",
+    "host_platform": "Linux-5.15.0-128-generic-x86_64-with-glibc2.35",
+    "machine": "x86_64",
+    "python": "3.10.12",
+    "logical_cpus": 10,
+    "sample_sha256": "c03f1e8a01cd488c993b483970a34915a3d0c10bf2be314221a4b942f0f54d49",
+    "mean_timed_length": 75.1015625,
+    "source_sha256": "0e87f105b8635cff23594e1a861640ead52d161aac4ef537853340500d9c8eb7",
+    "settings": {
+      "grover_source": "/home/ubuntu/pepclip-encoder-bench-20261026/grover-source",
+      "sample": "/home/ubuntu/pepclip-encoder-bench-20261026/sample.json",
+      "output": "/home/ubuntu/pepclip-encoder-bench-20261026/cpu-cloud-sustained/results.json",
+      "workers": [
+        10
+      ],
+      "samples": 2048,
+      "chunk_size": 16,
+      "repeats": 3
+    },
+    "scope": "sequence_to_smiles + unchanged GROVER MolGraph + BatchMolGraph + float32/int64 NPZ compression + fsync + exact decompression roundtrip + IPC; no models or GPUs",
+    "cases": [
+      {
+        "workers": 10,
+        "status": "complete",
+        "rates": [
+          42.36046760428363,
+          41.741666728210994,
+          41.98549423130461
+        ],
+        "repeats": [
+          {
+            "seconds": 48.34696394599996,
+            "raw_bytes": 2450956308,
+            "compressed_bytes": 40703928,
+            "worker_pids": [
+              24833,
+              24836,
+              24837,
+              24838,
+              24839,
+              24840,
+              24841,
+              24842,
+              24843,
+              24844
+            ],
+            "max_worker_rss_mib": 520.3125
+          },
+          {
+            "seconds": 49.06368529400061,
+            "raw_bytes": 2450956308,
+            "compressed_bytes": 40703928,
+            "worker_pids": [
+              24833,
+              24836,
+              24837,
+              24838,
+              24839,
+              24840,
+              24841,
+              24842,
+              24843,
+              24844
+            ],
+            "max_worker_rss_mib": 520.3125
+          },
+          {
+            "seconds": 48.7787517450015,
+            "raw_bytes": 2450956308,
+            "compressed_bytes": 40703928,
+            "worker_pids": [
+              24833,
+              24836,
+              24837,
+              24838,
+              24839,
+              24840,
+              24841,
+              24842,
+              24843,
+              24844
+            ],
+            "max_worker_rss_mib": 520.3125
+          }
+        ],
+        "startup_seconds": 2.2358895870002016,
+        "median_samples_per_second": 41.98549423130461
+      }
+    ],
+    "completed_utc": "2026-10-26T12:30:05.116660+00:00",
+    "first_chunk_arrays_sha256": "6b8488451deff2a30de411d3a2aa6446d3f5fdcc06b6a16dca92b56ee7e30cf7"
+  },
+  "tokens": {
+    "sample_sha256": "c03f1e8a01cd488c993b483970a34915a3d0c10bf2be314221a4b942f0f54d49",
+    "sample_count": 2048,
+    "batch_size": 32,
+    "repeats": [
+      {
+        "seconds": 1.3733431969994854,
+        "samples_per_second": 1491.2514253352851,
+        "compressed_bytes": 193743
+      },
+      {
+        "seconds": 1.3236788750000414,
+        "samples_per_second": 1547.2030555748922,
+        "compressed_bytes": 193743
+      },
+      {
+        "seconds": 1.3239076110003225,
+        "samples_per_second": 1546.935740064645,
+        "compressed_bytes": 193743
+      }
+    ],
+    "alphabet_tokens": [
+      "<cls>",
+      "<pad>",
+      "<eos>",
+      "<unk>",
+      "L",
+      "A",
+      "G",
+      "V",
+      "S",
+      "E",
+      "R",
+      "T",
+      "I",
+      "D",
+      "P",
+      "K",
+      "Q",
+      "N",
+      "F",
+      "Y",
+      "M",
+      "H",
+      "W",
+      "C",
+      "X",
+      "B",
+      "U",
+      "Z",
+      "O",
+      ".",
+      "-",
+      "<null_1>",
+      "<mask>"
+    ],
+    "scope": "tokenize + int64 NPZ write/fsync + exact roundtrip; CPU only, no model",
+    "status": "complete",
+    "median_samples_per_second": 1546.935740064645
+  },
+  "hardware": {
+    "cpu": "AMD EPYC 7402 24-Core Processor",
+    "allocated_vcpus": 10,
+    "ram_gib": 31,
+    "gpu": "RTX 4090 24GB",
+    "platform": "Linux-5.15.0-128-generic-x86_64-with-glibc2.35"
+  },
+  "oversubscribe": {
+    "status": "complete",
+    "started_utc": "2026-10-26T12:31:18.424058+00:00",
+    "host_platform": "Linux-5.15.0-128-generic-x86_64-with-glibc2.35",
+    "machine": "x86_64",
+    "python": "3.10.12",
+    "logical_cpus": 10,
+    "sample_sha256": "c03f1e8a01cd488c993b483970a34915a3d0c10bf2be314221a4b942f0f54d49",
+    "mean_timed_length": 75.1015625,
+    "source_sha256": "0e87f105b8635cff23594e1a861640ead52d161aac4ef537853340500d9c8eb7",
+    "settings": {
+      "grover_source": "/home/ubuntu/pepclip-encoder-bench-20261026/grover-source",
+      "sample": "/home/ubuntu/pepclip-encoder-bench-20261026/sample.json",
+      "output": "/home/ubuntu/pepclip-encoder-bench-20261026/cpu-cloud-oversubscribe/results.json",
+      "workers": [
+        16,
+        20
+      ],
+      "samples": 2048,
+      "chunk_size": 16,
+      "repeats": 3
+    },
+    "scope": "sequence_to_smiles + unchanged GROVER MolGraph + BatchMolGraph + float32/int64 NPZ compression + fsync + exact decompression roundtrip + IPC; no models or GPUs",
+    "cases": [
+      {
+        "workers": 16,
+        "status": "complete",
+        "rates": [
+          42.51647307574303,
+          42.41348677618102,
+          42.31596309102191
+        ],
+        "repeats": [
+          {
+            "seconds": 48.16956468499848,
+            "raw_bytes": 2450956308,
+            "compressed_bytes": 40703928,
+            "worker_pids": [
+              25857,
+              25860,
+              25861,
+              25862,
+              25863,
+              25864,
+              25865,
+              25866,
+              25867,
+              25868,
+              25869,
+              25870,
+              25871,
+              25872,
+              25873,
+              25874
+            ],
+            "max_worker_rss_mib": 520.41015625
+          },
+          {
+            "seconds": 48.286527604001094,
+            "raw_bytes": 2450956308,
+            "compressed_bytes": 40703928,
+            "worker_pids": [
+              25857,
+              25860,
+              25861,
+              25862,
+              25863,
+              25864,
+              25865,
+              25866,
+              25867,
+              25868,
+              25869,
+              25870,
+              25871,
+              25872,
+              25873,
+              25874
+            ],
+            "max_worker_rss_mib": 520.60546875
+          },
+          {
+            "seconds": 48.397811378999904,
+            "raw_bytes": 2450956308,
+            "compressed_bytes": 40703928,
+            "worker_pids": [
+              25857,
+              25860,
+              25861,
+              25862,
+              25863,
+              25864,
+              25865,
+              25866,
+              25867,
+              25868,
+              25869,
+              25870,
+              25871,
+              25872,
+              25873,
+              25874
+            ],
+            "max_worker_rss_mib": 520.60546875
+          }
+        ],
+        "startup_seconds": 3.653911221999806,
+        "median_samples_per_second": 42.41348677618102
+      },
+      {
+        "workers": 20,
+        "status": "complete",
+        "rates": [
+          41.98733153222456,
+          42.22209979219829,
+          42.358300023310164
+        ],
+        "repeats": [
+          {
+            "seconds": 48.77661726199949,
+            "raw_bytes": 2450956308,
+            "compressed_bytes": 40703928,
+            "worker_pids": [
+              25914,
+              25917,
+              25918,
+              25919,
+              25920,
+              25921,
+              25922,
+              25923,
+              25924,
+              25925,
+              25926,
+              25927,
+              25928,
+              25929,
+              25930,
+              25931,
+              25932,
+              25933,
+              25934,
+              25935
+            ],
+            "max_worker_rss_mib": 521.3515625
+          },
+          {
+            "seconds": 48.50540380699931,
+            "raw_bytes": 2450956308,
+            "compressed_bytes": 40703928,
+            "worker_pids": [
+              25914,
+              25917,
+              25918,
+              25919,
+              25920,
+              25921,
+              25922,
+              25923,
+              25924,
+              25925,
+              25926,
+              25927,
+              25928,
+              25929,
+              25930,
+              25931,
+              25932,
+              25933,
+              25934,
+              25935
+            ],
+            "max_worker_rss_mib": 521.3515625
+          },
+          {
+            "seconds": 48.34943798200038,
+            "raw_bytes": 2450956308,
+            "compressed_bytes": 40703928,
+            "worker_pids": [
+              25914,
+              25917,
+              25918,
+              25919,
+              25920,
+              25921,
+              25922,
+              25923,
+              25924,
+              25925,
+              25926,
+              25927,
+              25928,
+              25929,
+              25930,
+              25931,
+              25932,
+              25933,
+              25934,
+              25935
+            ],
+            "max_worker_rss_mib": 521.3515625
+          }
+        ],
+        "startup_seconds": 4.479229601000043,
+        "median_samples_per_second": 42.22209979219829
+      }
+    ],
+    "completed_utc": "2026-10-26T12:36:19.440882+00:00",
+    "first_chunk_arrays_sha256": "6b8488451deff2a30de411d3a2aa6446d3f5fdcc06b6a16dca92b56ee7e30cf7"
+  }
+}
