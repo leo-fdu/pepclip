@@ -1,0 +1,51 @@
+{
+  "models": {
+    "esm2": "esm2_t36_3B_UR50D",
+    "grover": "grover_base.pt"
+  },
+  "dataset": {
+    "source": "UniRef90 representative sequences",
+    "release": "unknown",
+    "filtered_fasta_sha256": "dac764132448f462a09c2eef807797464e1d01757fbacfca3c1a876c14aea8d2",
+    "expected_count": 12124168,
+    "length_inclusive": [10, 100],
+    "alphabet": "ACDEFGHIKLMNPQRSTVWY",
+    "splits": "not assigned during extraction; deduplicate sequences before forming training pairs"
+  },
+  "execution": {
+    "cpu_workers": 40,
+    "gpu_cpu_threads": 1,
+    "gpus": 4,
+    "esm_gpus_initial_preference": 2,
+    "esm_batch": 32,
+    "grover_batch": 8,
+    "shard_size": 4096,
+    "spool_gb": 20,
+    "precision": "FP32 parameters with CUDA FP16 autocast; pooled vectors stored as FP32",
+    "normalization": "none",
+    "telemetry_interval_seconds": 30,
+    "graph_builder": "pinned upstream features with exact sorted bond traversal",
+    "graph_cache": "bitwise lossless packed feature shards, deleted after inference commit"
+  },
+  "upstream": {
+    "esm_weights_sha256": "7de8b4082ba15891959ab368b77ce3886697af1efb16d3c9e9e7b0c5d3f07500",
+    "grover_commit": "40b6d97098e4508687912f3c05eca369fc2c6213",
+    "grover_molgraph_sha256": "0e87f105b8635cff23594e1a861640ead52d161aac4ef537853340500d9c8eb7",
+    "grover_weights_sha256": "47e095880d71baf29ea6f6253473cd56d5406213fa82959c6e14ea469e06b1de"
+  },
+  "reference_target": {
+    "python": "3.10.12",
+    "torch": "2.6.0+cu124",
+    "numpy": "2.2.6",
+    "fair-esm": "2.0.0",
+    "rdkit": "2025.9.4",
+    "scipy": "1.15.3",
+    "pandas": "2.2.3",
+    "scikit-learn": "1.6.1",
+    "driver": "595.58.03",
+    "gpu": "4 x RTX 4090, 23028 MiB visible memory each",
+    "cpu": "44 allocated vCPU; guest model string AMD EPYC 7402",
+    "ram": "125 GiB visible",
+    "data_disk": "500 GiB provisioned, ext4"
+  }
+}

@@ -50,7 +50,7 @@ class GroverEncoder(FrozenEncoder):
             source_root = Path(grover.__file__).parent
         else:
             # The official checkout uses a namespace package without __init__.py.
-            roots = list(grover.__path__)
+            roots = sorted({str(Path(p).resolve()) for p in grover.__path__})
             if len(roots) != 1:
                 raise ValueError("Expected one unambiguous GROVER source directory")
             source_root = Path(roots[0])

@@ -105,6 +105,8 @@ class AdapterTests(unittest.TestCase):
                 modules["grover"].__path__ = [str(root)]
                 self.assertIn("__init__.py", GroverEncoder(checkpoint, trusted_checkpoint=True).metadata()[
                     "source_sha256"])
+                modules["grover"].__path__ = [str(root), str(root / ".")]
+                self.assertEqual(GroverEncoder(checkpoint, trusted_checkpoint=True).output_dim, 4)
                 state["state_dict"] = {"weight": torch.ones(4),
                                        "readout.cached_zero_vector": torch.zeros(1)}
                 torch.save(state, checkpoint)

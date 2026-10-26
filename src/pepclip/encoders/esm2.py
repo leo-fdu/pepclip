@@ -1,3 +1,5 @@
+from argparse import Namespace
+from contextlib import nullcontext
 from pathlib import Path
 import torch
 from .base import FrozenEncoder
@@ -8,14 +10,19 @@ class ESM2Encoder(FrozenEncoder):
     def __init__(self, model_name="esm2_t33_650M_UR50D", checkpoint=None,
                  device="cpu", layer=None):
         import esm
-        if checkpoint:
-            model, alphabet = esm.pretrained.load_model_and_alphabet_local(checkpoint)
-            weight_path = Path(checkpoint)
-        else:
-            if not model_name.startswith("esm2_"):
-                raise ValueError("Expected an ESM2 model name")
-            model, alphabet = esm.pretrained.load_model_and_alphabet(model_name)
-            weight_path = Path(torch.hub.get_dir()) / "checkpoints" / (model_name + ".pt")
+        # Released ESM checkpoints may contain argparse.Namespace. Allow only
+        # that specific configuration type under PyTorch 2.6's safe loader.
+        safe_globals = getattr(torch.serialization, "safe_globals", None)
+        context = safe_globals([Namespace]) if safe_globals else nullcontext()
+        with context:
+            if checkpoint:
+                model, alphabet = esm.pretrained.load_model_and_alphabet_local(checkpoint)
+                weight_path = Path(checkpoint)
+            else:
+                if not model_name.startswith("esm2_"):
+                    raise ValueError("Expected an ESM2 model name")
+                model, alphabet = esm.pretrained.load_model_and_alphabet(model_name)
+                weight_path = Path(torch.hub.get_dir()) / "checkpoints" / (model_name + ".pt")
         if model.__class__.__name__ != "ESM2":
             raise ValueError("Loaded checkpoint is not an ESM2 encoder")
         self.freeze(model, device)
