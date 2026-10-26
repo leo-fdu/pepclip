@@ -1,0 +1,173 @@
+{
+  "status": "complete",
+  "started_utc": "2026-10-26T10:58:45.487289+00:00",
+  "host_platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "python": "3.14.5",
+  "logical_cpus": 15,
+  "sample_sha256": "c03f1e8a01cd488c993b483970a34915a3d0c10bf2be314221a4b942f0f54d49",
+  "mean_timed_length": 75.1015625,
+  "source_sha256": "0e87f105b8635cff23594e1a861640ead52d161aac4ef537853340500d9c8eb7",
+  "settings": {
+    "grover_source": ".cache/encoder-benchmark/grover-source",
+    "sample": "data/processed/encoder-benchmark-20261026/sample.json",
+    "output": "outputs/cpu-benchmark-20261026/sustained8/results.json",
+    "workers": [
+      8
+    ],
+    "samples": 2048,
+    "chunk_size": 16,
+    "repeats": 8
+  },
+  "scope": "sequence_to_smiles + unchanged GROVER MolGraph + BatchMolGraph + float32/int64 NPZ compression + fsync + exact decompression roundtrip + IPC; no models or GPUs",
+  "cases": [
+    {
+      "workers": 8,
+      "status": "complete",
+      "rates": [
+        168.04177594581958,
+        165.46282018532887,
+        159.41500195382582,
+        154.94179400349086,
+        154.74087837889417,
+        153.7772070872268,
+        153.91839174080317,
+        151.63676543908252
+      ],
+      "repeats": [
+        {
+          "seconds": 12.18744558293838,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            4287,
+            4288,
+            4289,
+            4290,
+            4291,
+            4292,
+            4293,
+            4294
+          ],
+          "max_worker_rss_mib": 389.859375
+        },
+        {
+          "seconds": 12.37740295799449,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            4287,
+            4288,
+            4289,
+            4290,
+            4291,
+            4292,
+            4293,
+            4294
+          ],
+          "max_worker_rss_mib": 420.140625
+        },
+        {
+          "seconds": 12.846971582970582,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            4287,
+            4288,
+            4289,
+            4290,
+            4291,
+            4292,
+            4293,
+            4294
+          ],
+          "max_worker_rss_mib": 420.140625
+        },
+        {
+          "seconds": 13.217866832972504,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            4287,
+            4288,
+            4289,
+            4290,
+            4291,
+            4292,
+            4293,
+            4294
+          ],
+          "max_worker_rss_mib": 420.140625
+        },
+        {
+          "seconds": 13.23502891708631,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            4287,
+            4288,
+            4289,
+            4290,
+            4291,
+            4292,
+            4293,
+            4294
+          ],
+          "max_worker_rss_mib": 420.140625
+        },
+        {
+          "seconds": 13.317968499963172,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            4287,
+            4288,
+            4289,
+            4290,
+            4291,
+            4292,
+            4293,
+            4294
+          ],
+          "max_worker_rss_mib": 420.140625
+        },
+        {
+          "seconds": 13.305752333020791,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            4287,
+            4288,
+            4289,
+            4290,
+            4291,
+            4292,
+            4293,
+            4294
+          ],
+          "max_worker_rss_mib": 420.140625
+        },
+        {
+          "seconds": 13.50595941604115,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            4287,
+            4288,
+            4289,
+            4290,
+            4291,
+            4292,
+            4293,
+            4294
+          ],
+          "max_worker_rss_mib": 420.140625
+        }
+      ],
+      "startup_seconds": 3.205341333989054,
+      "median_samples_per_second": 154.8413361911925
+    }
+  ],
+  "completed_utc": "2026-10-26T11:00:32.993925+00:00",
+  "first_chunk_arrays_sha256": "6b8488451deff2a30de411d3a2aa6446d3f5fdcc06b6a16dca92b56ee7e30cf7"
+}

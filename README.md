@@ -27,6 +27,8 @@ GROVER uses modules from the [official repository](https://github.com/tencent-ai
 
 ## Workflow After Downloading the Data
 
+For the user-requested CPU-first schedule, [local M5 Pro measurements](docs/benchmarks/20261026-m5pro-cpu-preprocessing.md) estimate roughly 22.5 hours of full-set graph/token preparation and about 242 GB of prepared caches before margins. The separate [4090 measurements](docs/benchmarks/20261026-encoder-extraction.md) estimate about 27.3 hours of GPU-stage work with inputs prepared. These are sampled extrapolations; the full sharded producer/consumer and resumption flow has not yet been implemented or run.
+
 For a sequence-only first pass on a large release, use the standard-library-only command below. It streams compressed input without unpacking it, retains complete canonical 10–100 aa sequences, and deduplicates exact sequences using a temporary disk-backed SQLite index (64 MiB page cache). No model dependencies, molecular graphs, or train/validation/test assignments are required at this stage.
 
 ```bash

@@ -1,0 +1,7 @@
+# Measured on Apple M5 Pro / macOS 27.0.1 / Python 3.14.5.
+# CPU graph/token preparation only; not the cloud encoder runtime.
+torch==2.10.0
+numpy==2.4.1
+rdkit==2025.9.4
+pandas==3.0.0
+fair-esm==2.0.0

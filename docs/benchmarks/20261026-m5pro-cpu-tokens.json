@@ -1,0 +1,70 @@
+{
+  "sample_sha256": "c03f1e8a01cd488c993b483970a34915a3d0c10bf2be314221a4b942f0f54d49",
+  "sample_count": 2048,
+  "batch_size": 32,
+  "repeats": [
+    {
+      "seconds": 0.4270432910416275,
+      "samples_per_second": 4795.766712561149,
+      "compressed_bytes": 193743
+    },
+    {
+      "seconds": 0.4181404580594972,
+      "samples_per_second": 4897.875726984998,
+      "compressed_bytes": 193743
+    },
+    {
+      "seconds": 0.4085024999221787,
+      "samples_per_second": 5013.4332112781485,
+      "compressed_bytes": 193743
+    },
+    {
+      "seconds": 0.4421321670524776,
+      "samples_per_second": 4632.099070405159,
+      "compressed_bytes": 193743
+    },
+    {
+      "seconds": 0.43590266595128924,
+      "samples_per_second": 4698.296569328295,
+      "compressed_bytes": 193743
+    }
+  ],
+  "alphabet_tokens": [
+    "<cls>",
+    "<pad>",
+    "<eos>",
+    "<unk>",
+    "L",
+    "A",
+    "G",
+    "V",
+    "S",
+    "E",
+    "R",
+    "T",
+    "I",
+    "D",
+    "P",
+    "K",
+    "Q",
+    "N",
+    "F",
+    "Y",
+    "M",
+    "H",
+    "W",
+    "C",
+    "X",
+    "B",
+    "U",
+    "Z",
+    "O",
+    ".",
+    "-",
+    "<null_1>",
+    "<mask>"
+  ],
+  "scope": "tokenize + int64 NPZ write/fsync + exact roundtrip; CPU only, no model",
+  "status": "complete",
+  "median_samples_per_second": 4795.766712561149
+}

@@ -1,0 +1,373 @@
+{
+  "status": "complete",
+  "started_utc": "2026-10-26T10:53:34.670922+00:00",
+  "host_platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "python": "3.14.5",
+  "logical_cpus": 15,
+  "sample_sha256": "c03f1e8a01cd488c993b483970a34915a3d0c10bf2be314221a4b942f0f54d49",
+  "mean_timed_length": 75.1015625,
+  "source_sha256": "0e87f105b8635cff23594e1a861640ead52d161aac4ef537853340500d9c8eb7",
+  "settings": {
+    "grover_source": ".cache/encoder-benchmark/grover-source",
+    "sample": "data/processed/encoder-benchmark-20261026/sample.json",
+    "output": "outputs/cpu-benchmark-20261026/sustained/results.json",
+    "workers": [
+      12
+    ],
+    "samples": 2048,
+    "chunk_size": 16,
+    "repeats": 16
+  },
+  "scope": "sequence_to_smiles + unchanged GROVER MolGraph + BatchMolGraph + float32/int64 NPZ compression + fsync + exact decompression roundtrip + IPC; no models or GPUs",
+  "cases": [
+    {
+      "workers": 12,
+      "status": "complete",
+      "rates": [
+        225.07282308397424,
+        213.47632446775884,
+        203.3004802163029,
+        200.63068864135138,
+        201.7305072536725,
+        182.7255172648444,
+        189.14242880313435,
+        197.68285306339482,
+        198.4970263215451,
+        186.39441724877565,
+        179.9322339435723,
+        173.620057788393,
+        168.61276645641675,
+        156.00709687223952,
+        147.3458324725011,
+        139.29896097469188
+      ],
+      "repeats": [
+        {
+          "seconds": 9.099277166998945,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 9.59356970898807,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 10.073758792015724,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 10.207810250110924,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 10.152158083976246,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 11.208067875006236,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 10.827819083002396,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 10.360028541996144,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 10.317534917034209,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 10.987453541951254,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 11.382062875083648,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 11.795872124959715,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 12.146173999994062,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 13.127607916947454,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 13.899273332906887,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        },
+        {
+          "seconds": 14.702191499993205,
+          "raw_bytes": 2450956308,
+          "compressed_bytes": 40703928,
+          "worker_pids": [
+            1064,
+            1065,
+            1066,
+            1067,
+            1068,
+            1069,
+            1070,
+            1071,
+            1072,
+            1073,
+            1074,
+            1075
+          ],
+          "max_worker_rss_mib": 385.703125
+        }
+      ],
+      "startup_seconds": 3.9220240419963375,
+      "median_samples_per_second": 187.768423025955
+    }
+  ],
+  "completed_utc": "2026-10-26T10:56:38.995019+00:00",
+  "first_chunk_arrays_sha256": "6b8488451deff2a30de411d3a2aa6446d3f5fdcc06b6a16dca92b56ee7e30cf7"
+}

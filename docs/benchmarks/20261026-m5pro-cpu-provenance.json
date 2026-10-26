@@ -1,0 +1,23 @@
+{
+  "hardware": "Apple M5 Pro, 15 CPU cores, 24 GiB unified memory",
+  "power": "AC attached during benchmark",
+  "python": "3.14.5",
+  "packages": {
+    "torch": "2.10.0",
+    "numpy": "2.4.1",
+    "rdkit": "2025.9.4",
+    "pandas": "3.0.0",
+    "fair-esm": "2.0.0"
+  },
+  "grover_upstream_commit": "40b6d97098e4508687912f3c05eca369fc2c6213",
+  "source_sha256": {
+    "scripts/benchmark_cpu_graphs.py": "287e5b0f7c1129351da6fa8c0048b1a2ad97a6ee5032c400c65323ed53e0b72c",
+    "scripts/benchmark_cpu_tokens.py": "b28c9d3298ceaebb68bf893af4cf140aede2b88e57546baa302c403c115bce9f",
+    ".cache/encoder-benchmark/grover-source/grover/data/molgraph.py": "0e87f105b8635cff23594e1a861640ead52d161aac4ef537853340500d9c8eb7"
+  },
+  "cross_platform_first_16_graph_arrays_sha256": "6b8488451deff2a30de411d3a2aa6446d3f5fdcc06b6a16dca92b56ee7e30cf7",
+  "cross_platform_reference": "Ubuntu/Python3.10.12/PyTorch2.6.0/NumPy2.2.6/RDKit2025.9.4, same source and sampled rows",
+  "disk_free_bytes_at_record": 231424000000,
+  "thermal_telemetry": "pmset thermal query unavailable; cause of sustained throughput drift not established",
+  "gpu_use": "none; no model weights downloaded or loaded on Mac"
+}

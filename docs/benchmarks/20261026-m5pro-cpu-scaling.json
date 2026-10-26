@@ -1,0 +1,225 @@
+{
+  "status": "complete",
+  "started_utc": "2026-10-26T10:50:22.504730+00:00",
+  "host_platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "python": "3.14.5",
+  "logical_cpus": 15,
+  "sample_sha256": "c03f1e8a01cd488c993b483970a34915a3d0c10bf2be314221a4b942f0f54d49",
+  "mean_timed_length": 75.630859375,
+  "source_sha256": "0e87f105b8635cff23594e1a861640ead52d161aac4ef537853340500d9c8eb7",
+  "settings": {
+    "grover_source": ".cache/encoder-benchmark/grover-source",
+    "sample": "data/processed/encoder-benchmark-20261026/sample.json",
+    "output": "outputs/cpu-benchmark-20261026/v2/results.json",
+    "workers": [
+      1,
+      2,
+      4,
+      8,
+      12
+    ],
+    "samples": 512,
+    "chunk_size": 16,
+    "repeats": 2
+  },
+  "scope": "sequence_to_smiles + unchanged GROVER MolGraph + BatchMolGraph + float32/int64 NPZ compression + fsync + exact decompression roundtrip + IPC; no models or GPUs",
+  "cases": [
+    {
+      "workers": 1,
+      "status": "complete",
+      "rates": [
+        26.360711707414797,
+        25.979025099112885
+      ],
+      "repeats": [
+        {
+          "seconds": 19.4228443329921,
+          "raw_bytes": 616722712,
+          "compressed_bytes": 10245022,
+          "worker_pids": [
+            98772
+          ],
+          "max_worker_rss_mib": 401.015625
+        },
+        {
+          "seconds": 19.70820683403872,
+          "raw_bytes": 616722712,
+          "compressed_bytes": 10245022,
+          "worker_pids": [
+            98772
+          ],
+          "max_worker_rss_mib": 401.015625
+        }
+      ],
+      "startup_seconds": 1.3805796660017222,
+      "median_samples_per_second": 26.16986840326384
+    },
+    {
+      "workers": 2,
+      "status": "complete",
+      "rates": [
+        49.47457800567646,
+        49.23481493133331
+      ],
+      "repeats": [
+        {
+          "seconds": 10.348749208962545,
+          "raw_bytes": 616722712,
+          "compressed_bytes": 10245022,
+          "worker_pids": [
+            99229,
+            99230
+          ],
+          "max_worker_rss_mib": 413.46875
+        },
+        {
+          "seconds": 10.399145415984094,
+          "raw_bytes": 616722712,
+          "compressed_bytes": 10245022,
+          "worker_pids": [
+            99229,
+            99230
+          ],
+          "max_worker_rss_mib": 413.46875
+        }
+      ],
+      "startup_seconds": 1.4588248749496415,
+      "median_samples_per_second": 49.35469646850488
+    },
+    {
+      "workers": 4,
+      "status": "complete",
+      "rates": [
+        91.37602341197801,
+        90.6111984059246
+      ],
+      "repeats": [
+        {
+          "seconds": 5.6032204169314355,
+          "raw_bytes": 616722712,
+          "compressed_bytes": 10245022,
+          "worker_pids": [
+            99411,
+            99412,
+            99413,
+            99414
+          ],
+          "max_worker_rss_mib": 399.34375
+        },
+        {
+          "seconds": 5.650515708955936,
+          "raw_bytes": 616722712,
+          "compressed_bytes": 10245022,
+          "worker_pids": [
+            99411,
+            99412,
+            99413,
+            99414
+          ],
+          "max_worker_rss_mib": 399.34375
+        }
+      ],
+      "startup_seconds": 1.649354083929211,
+      "median_samples_per_second": 90.9936109089513
+    },
+    {
+      "workers": 8,
+      "status": "complete",
+      "rates": [
+        156.66034813841594,
+        158.4976813618861
+      ],
+      "repeats": [
+        {
+          "seconds": 3.2682169169420376,
+          "raw_bytes": 616722712,
+          "compressed_bytes": 10245022,
+          "worker_pids": [
+            99510,
+            99511,
+            99512,
+            99513,
+            99514,
+            99515,
+            99516,
+            99517
+          ],
+          "max_worker_rss_mib": 299.484375
+        },
+        {
+          "seconds": 3.2303311669966206,
+          "raw_bytes": 616722712,
+          "compressed_bytes": 10245022,
+          "worker_pids": [
+            99510,
+            99511,
+            99512,
+            99513,
+            99514,
+            99515,
+            99516,
+            99517
+          ],
+          "max_worker_rss_mib": 363.40625
+        }
+      ],
+      "startup_seconds": 2.5574039589846507,
+      "median_samples_per_second": 157.57901475015103
+    },
+    {
+      "workers": 12,
+      "status": "complete",
+      "rates": [
+        201.54670365348133,
+        202.3794640530089
+      ],
+      "repeats": [
+        {
+          "seconds": 2.5403541249688715,
+          "raw_bytes": 616722712,
+          "compressed_bytes": 10245022,
+          "worker_pids": [
+            99613,
+            99614,
+            99615,
+            99616,
+            99617,
+            99618,
+            99619,
+            99620,
+            99621,
+            99622,
+            99623,
+            99624
+          ],
+          "max_worker_rss_mib": 307.4375
+        },
+        {
+          "seconds": 2.529900958063081,
+          "raw_bytes": 616722712,
+          "compressed_bytes": 10245022,
+          "worker_pids": [
+            99613,
+            99614,
+            99615,
+            99616,
+            99617,
+            99618,
+            99619,
+            99620,
+            99621,
+            99622,
+            99623,
+            99624
+          ],
+          "max_worker_rss_mib": 335.671875
+        }
+      ],
+      "startup_seconds": 3.141624541953206,
+      "median_samples_per_second": 201.9630838532451
+    }
+  ],
+  "completed_utc": "2026-10-26T10:51:56.492235+00:00",
+  "first_chunk_arrays_sha256": "6b8488451deff2a30de411d3a2aa6446d3f5fdcc06b6a16dca92b56ee7e30cf7"
+}
