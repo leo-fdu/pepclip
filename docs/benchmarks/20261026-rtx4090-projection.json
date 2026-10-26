@@ -1,0 +1,253 @@
+{
+  "status": "complete",
+  "started_utc": "2026-10-26T09:29:54.432343+00:00",
+  "python": "3.10.12",
+  "torch": "2.6.0+cu124",
+  "numpy": "2.2.6",
+  "cuda_runtime": "12.4",
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "gpu_total_gib": 23.64288330078125,
+  "nvidia_smi": "NVIDIA GeForce RTX 4090, 550.142, 24564 MiB",
+  "configuration": {
+    "output": "/home/ubuntu/pepclip-bench-20261026/results.json",
+    "batch_sizes": [
+      2048,
+      4096,
+      8192,
+      16384,
+      32768
+    ],
+    "modes": [
+      "resident",
+      "loader"
+    ],
+    "input_dim_a": 1280,
+    "input_dim_b": 1600,
+    "hidden_dim": 512,
+    "projection_dim": 256,
+    "temperature": 0.07,
+    "samples": 65536,
+    "warmup": 10,
+    "steps": 20,
+    "repeats": 3,
+    "threads": 4,
+    "seed": 42
+  },
+  "precision": "FP32; TF32 disabled; no AMP; deterministic algorithms",
+  "source_sha256": {
+    "model.py": "daf8e7744a7cf2ea0aa8f51ebd022a962adafff35c8d1363ff8ed49566ad263c",
+    "cache.py": "84bf891624e7d051ab1492e4927110beee7661b75e7f2c2c1f378bb43e9d2af7",
+    "train.py": "fc6b90c77aed1f109141ab3c84227e3fafaab9df1a8ec1ee120c7a7fa0525ecf"
+  },
+  "limitations": [
+    "Synthetic input dimensions, not measured encoder outputs",
+    "No pretrained encoder execution or real-data accuracy evaluation",
+    "Loader uses a warm OS page-cache synthetic dataset; not a cold full-scale SSD test",
+    "Loader matches current num_workers=0, unpinned, blocking transfer path",
+    "Resident reuses one GPU-resident input batch; excludes data loading and transfer",
+    "Peak allocator memory includes warmup and training, but excludes CUDA driver/context allocations"
+  ],
+  "cases": [
+    {
+      "mode": "resident",
+      "batch_size": 2048,
+      "status": "ok",
+      "median_samples_per_second": 488202.9557898665,
+      "samples_per_second_repeats": [
+        492240.16902542725,
+        488202.9557898665,
+        483017.49519769824
+      ],
+      "elapsed_seconds_repeats": [
+        0.08321141300007184,
+        0.08389953300002162,
+        0.08480024100003902
+      ],
+      "peak_allocated_gib": 0.19098281860351562,
+      "peak_reserved_gib": 0.19921875,
+      "parameter_count": 1738240,
+      "last_synthetic_loss": 0.009234999306499958
+    },
+    {
+      "mode": "resident",
+      "batch_size": 4096,
+      "status": "ok",
+      "median_samples_per_second": 800345.1644839718,
+      "samples_per_second_repeats": [
+        797949.0372014636,
+        805224.6973031297,
+        800345.1644839718
+      ],
+      "elapsed_seconds_repeats": [
+        0.10266319799984558,
+        0.10173557799998889,
+        0.10235583799999404
+      ],
+      "peak_allocated_gib": 0.4238166809082031,
+      "peak_reserved_gib": 0.484375,
+      "parameter_count": 1738240,
+      "last_synthetic_loss": 0.022634685039520264
+    },
+    {
+      "mode": "resident",
+      "batch_size": 8192,
+      "status": "ok",
+      "median_samples_per_second": 614314.9634511563,
+      "samples_per_second_repeats": [
+        614651.9688913024,
+        614314.9634511563,
+        612714.2935421701
+      ],
+      "elapsed_seconds_repeats": [
+        0.2665573500000846,
+        0.26670358000001215,
+        0.26740032300017447
+      ],
+      "peak_allocated_gib": 1.2637519836425781,
+      "peak_reserved_gib": 1.27734375,
+      "parameter_count": 1738240,
+      "last_synthetic_loss": 0.0640760064125061
+    },
+    {
+      "mode": "resident",
+      "batch_size": 16384,
+      "status": "ok",
+      "median_samples_per_second": 349948.1195611874,
+      "samples_per_second_repeats": [
+        349157.0409967409,
+        350040.9729966907,
+        349948.1195611874
+      ],
+      "elapsed_seconds_repeats": [
+        0.9384888790000332,
+        0.9361189839999042,
+        0.9363673689999814
+      ],
+      "peak_allocated_gib": 4.446186065673828,
+      "peak_reserved_gib": 5.451171875,
+      "parameter_count": 1738240,
+      "last_synthetic_loss": 0.1868281066417694
+    },
+    {
+      "mode": "resident",
+      "batch_size": 32768,
+      "status": "ok",
+      "median_samples_per_second": 177558.72510451934,
+      "samples_per_second_repeats": [
+        177558.72510451934,
+        177643.96879793121,
+        176770.72973808498
+      ],
+      "elapsed_seconds_repeats": [
+        3.6909478799998396,
+        3.6891767530000834,
+        3.707401111999843
+      ],
+      "peak_allocated_gib": 16.809833526611328,
+      "peak_reserved_gib": 20.814453125,
+      "parameter_count": 1738240,
+      "last_synthetic_loss": 0.7424384951591492
+    },
+    {
+      "mode": "loader",
+      "batch_size": 2048,
+      "status": "ok",
+      "median_samples_per_second": 44413.91017036199,
+      "samples_per_second_repeats": [
+        44510.104624506734,
+        41384.15246904287,
+        44413.91017036199
+      ],
+      "elapsed_seconds_repeats": [
+        0.9202404790000855,
+        0.9897508480000852,
+        0.9222335939998629
+      ],
+      "peak_allocated_gib": 0.19098281860351562,
+      "peak_reserved_gib": 0.19921875,
+      "parameter_count": 1738240,
+      "last_synthetic_loss": 5.764376640319824
+    },
+    {
+      "mode": "loader",
+      "batch_size": 4096,
+      "status": "ok",
+      "median_samples_per_second": 41329.85775599072,
+      "samples_per_second_repeats": [
+        41329.85775599072,
+        40830.217336569396,
+        42083.967082886214
+      ],
+      "elapsed_seconds_repeats": [
+        1.982102151999925,
+        2.0063571870000487,
+        1.9465845469999294
+      ],
+      "peak_allocated_gib": 0.4238166809082031,
+      "peak_reserved_gib": 0.484375,
+      "parameter_count": 1738240,
+      "last_synthetic_loss": 4.8181610107421875
+    },
+    {
+      "mode": "loader",
+      "batch_size": 8192,
+      "status": "ok",
+      "median_samples_per_second": 37182.39024487013,
+      "samples_per_second_repeats": [
+        37182.39024487013,
+        37128.07222186832,
+        37710.32619685013
+      ],
+      "elapsed_seconds_repeats": [
+        4.406386973000053,
+        4.4128334759998324,
+        4.344698561999849
+      ],
+      "peak_allocated_gib": 1.2637519836425781,
+      "peak_reserved_gib": 1.27734375,
+      "parameter_count": 1738240,
+      "last_synthetic_loss": 4.59617280960083
+    },
+    {
+      "mode": "loader",
+      "batch_size": 16384,
+      "status": "ok",
+      "median_samples_per_second": 35924.980593798326,
+      "samples_per_second_repeats": [
+        35812.755217043006,
+        36140.10573492042,
+        35924.980593798326
+      ],
+      "elapsed_seconds_repeats": [
+        9.149812630000042,
+        9.066935287999968,
+        9.121229700999947
+      ],
+      "peak_allocated_gib": 4.446186065673828,
+      "peak_reserved_gib": 5.451171875,
+      "parameter_count": 1738240,
+      "last_synthetic_loss": 3.9597911834716797
+    },
+    {
+      "mode": "loader",
+      "batch_size": 32768,
+      "status": "ok",
+      "median_samples_per_second": 32815.629886667986,
+      "samples_per_second_repeats": [
+        32896.36077239033,
+        32705.24708841409,
+        32815.629886667986
+      ],
+      "elapsed_seconds_repeats": [
+        19.921960503000037,
+        20.038374828000087,
+        19.97097121899992
+      ],
+      "peak_allocated_gib": 16.809833526611328,
+      "peak_reserved_gib": 20.814453125,
+      "parameter_count": 1738240,
+      "last_synthetic_loss": 3.4139885902404785
+    }
+  ],
+  "completed_utc": "2026-10-26T09:32:28.045449+00:00"
+}
