@@ -60,7 +60,10 @@ class AdapterTests(unittest.TestCase):
             def __init__(self, args):
                 super().__init__()
                 self.weight = nn.Parameter(torch.ones(4))
+                self.readout = nn.Module()
+                self.readout.cached_zero_vector = nn.Parameter(torch.zeros(2), requires_grad=False)
                 self.args = args
+                assert args.dropout == 0.0
 
             def forward(self, batch, extra):
                 assert all(value is None for value in extra)
@@ -94,6 +97,19 @@ class AdapterTests(unittest.TestCase):
                 encoder = GroverEncoder(checkpoint, trusted_checkpoint=True)
                 self.assertEqual(encoder.encode(["C", "CC"]).shape, (2, 4))
                 self.assertFalse(encoder.model.weight.requires_grad)
+                self.assertEqual(encoder.metadata()["initialized_nonlearned_constants"],
+                                 ["readout.cached_zero_vector"])
+                self.assertTrue(encoder.metadata()["dropout_defaulted"])
+                torch.testing.assert_close(encoder.model.readout.cached_zero_vector, torch.zeros(2))
+                modules["grover"].__file__ = None
+                modules["grover"].__path__ = [str(root)]
+                self.assertIn("__init__.py", GroverEncoder(checkpoint, trusted_checkpoint=True).metadata()[
+                    "source_sha256"])
+                state["state_dict"] = {"weight": torch.ones(4),
+                                       "readout.cached_zero_vector": torch.zeros(1)}
+                torch.save(state, checkpoint)
+                with self.assertRaisesRegex(ValueError, "missing/incompatible"):
+                    GroverEncoder(checkpoint, trusted_checkpoint=True)
                 state["state_dict"] = {}
                 torch.save(state, checkpoint)
                 with self.assertRaisesRegex(ValueError, "missing/incompatible"):

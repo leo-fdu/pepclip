@@ -1,0 +1,405 @@
+{
+  "status": "complete",
+  "model": "esm2",
+  "started_utc": "2026-10-26T09:56:45.121441+00:00",
+  "python": "3.10.12",
+  "torch": "2.6.0+cu124",
+  "numpy": "2.2.6",
+  "cuda_runtime": "12.4",
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "sample_sha256": "c03f1e8a01cd488c993b483970a34915a3d0c10bf2be314221a4b942f0f54d49",
+  "sample_count": 2048,
+  "mean_sample_length": 75.1015625,
+  "settings": {
+    "model": "esm2",
+    "checkpoint": "/home/ubuntu/pepclip-encoder-bench-20261026/weights/esm2_t33_650M_UR50D.pt",
+    "sample": "/home/ubuntu/pepclip-encoder-bench-20261026/sample.json",
+    "output": "/home/ubuntu/pepclip-encoder-bench-20261026/esm2-results.json",
+    "batch_sizes": [
+      32,
+      64,
+      128,
+      256,
+      512
+    ],
+    "precisions": [
+      "fp32",
+      "amp_fp16"
+    ],
+    "samples_per_repeat": 512,
+    "repeats": 3,
+    "warmup": 2,
+    "threads": 4
+  },
+  "cases": [
+    {
+      "status": "ok",
+      "precision": "fp32",
+      "batch_size": 32,
+      "sample_count_per_repeat": 512,
+      "median_samples_per_second": 199.91860719993468,
+      "samples_per_second_repeats": [
+        199.06747726748142,
+        199.91860719993468,
+        200.06124789140293
+      ],
+      "elapsed_seconds_repeats": [
+        2.571992205999777,
+        2.5610422519998792,
+        2.5592162670000107
+      ],
+      "cpu_graph_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "cpu_batch_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "output_write_seconds_repeats": [
+        0.012945091998062708,
+        0.013476235000325687,
+        0.015966481000759813
+      ],
+      "peak_allocated_gib": 2.7987189292907715,
+      "peak_reserved_gib": 3.021484375
+    },
+    {
+      "status": "ok",
+      "precision": "fp32",
+      "batch_size": 64,
+      "sample_count_per_repeat": 512,
+      "median_samples_per_second": 202.49813004643588,
+      "samples_per_second_repeats": [
+        202.49813004643588,
+        201.21682495074987,
+        202.7376528483125
+      ],
+      "elapsed_seconds_repeats": [
+        2.5284184100000857,
+        2.5445188300000154,
+        2.5254312299998674
+      ],
+      "cpu_graph_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "cpu_batch_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "output_write_seconds_repeats": [
+        0.012040367000736296,
+        0.01282263100029013,
+        0.015186486999937188
+      ],
+      "peak_allocated_gib": 3.0981016159057617,
+      "peak_reserved_gib": 3.478515625
+    },
+    {
+      "status": "ok",
+      "precision": "fp32",
+      "batch_size": 128,
+      "sample_count_per_repeat": 512,
+      "median_samples_per_second": 194.60473100274749,
+      "samples_per_second_repeats": [
+        194.46842399847685,
+        194.72309324370033,
+        194.60473100274749
+      ],
+      "elapsed_seconds_repeats": [
+        2.6328181690000747,
+        2.629374828999971,
+        2.630974064000384
+      ],
+      "cpu_graph_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "cpu_batch_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "output_write_seconds_repeats": [
+        0.015526138000495848,
+        0.012477230000058626,
+        0.013281072000154381
+      ],
+      "peak_allocated_gib": 3.6968679428100586,
+      "peak_reserved_gib": 4.373046875
+    },
+    {
+      "status": "ok",
+      "precision": "fp32",
+      "batch_size": 256,
+      "sample_count_per_repeat": 512,
+      "median_samples_per_second": 194.40869269432224,
+      "samples_per_second_repeats": [
+        193.68552701768414,
+        194.40869269432224,
+        195.0247654884032
+      ],
+      "elapsed_seconds_repeats": [
+        2.643460292999862,
+        2.6336270919996423,
+        2.6253076049997617
+      ],
+      "cpu_graph_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "cpu_batch_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "output_write_seconds_repeats": [
+        0.012847750999299024,
+        0.016401681999468565,
+        0.014523605999784195
+      ],
+      "peak_allocated_gib": 4.886588096618652,
+      "peak_reserved_gib": 6.158203125
+    },
+    {
+      "status": "ok",
+      "precision": "fp32",
+      "batch_size": 512,
+      "sample_count_per_repeat": 512,
+      "median_samples_per_second": 192.48100372453393,
+      "samples_per_second_repeats": [
+        192.69895594278526,
+        192.48100372453393,
+        192.30962147135278
+      ],
+      "elapsed_seconds_repeats": [
+        2.656994157000099,
+        2.6600027540002884,
+        2.6623732920002112
+      ],
+      "cpu_graph_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "cpu_batch_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "output_write_seconds_repeats": [
+        0.014215585000329156,
+        0.012108617999729177,
+        0.01138121499980116
+      ],
+      "peak_allocated_gib": 7.273841381072998,
+      "peak_reserved_gib": 9.73828125
+    },
+    {
+      "status": "ok",
+      "precision": "amp_fp16",
+      "batch_size": 32,
+      "sample_count_per_repeat": 512,
+      "median_samples_per_second": 429.18010307407496,
+      "samples_per_second_repeats": [
+        428.9191994657443,
+        429.18010307407496,
+        430.7601748648995
+      ],
+      "elapsed_seconds_repeats": [
+        1.1936980219998077,
+        1.1929723589996684,
+        1.1885964160001095
+      ],
+      "cpu_graph_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "cpu_batch_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "output_write_seconds_repeats": [
+        0.01248793199965803,
+        0.013531992000025639,
+        0.012529221000022517
+      ],
+      "peak_allocated_gib": 2.671631336212158,
+      "peak_reserved_gib": 2.818359375
+    },
+    {
+      "status": "ok",
+      "precision": "amp_fp16",
+      "batch_size": 64,
+      "sample_count_per_repeat": 512,
+      "median_samples_per_second": 414.9015627120931,
+      "samples_per_second_repeats": [
+        414.28679167409854,
+        414.9015627120931,
+        415.9467585550163
+      ],
+      "elapsed_seconds_repeats": [
+        1.2358588550000604,
+        1.234027648999927,
+        1.230926769999769
+      ],
+      "cpu_graph_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "cpu_batch_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "output_write_seconds_repeats": [
+        0.013041359999988344,
+        0.013185642000280495,
+        0.013618601999951352
+      ],
+      "peak_allocated_gib": 2.844794750213623,
+      "peak_reserved_gib": 3.109375
+    },
+    {
+      "status": "ok",
+      "precision": "amp_fp16",
+      "batch_size": 128,
+      "sample_count_per_repeat": 512,
+      "median_samples_per_second": 376.93054022139154,
+      "samples_per_second_repeats": [
+        376.93054022139154,
+        376.7747798471672,
+        378.50153983046533
+      ],
+      "elapsed_seconds_repeats": [
+        1.3583404510000037,
+        1.3589019949999965,
+        1.3527025549997234
+      ],
+      "cpu_graph_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "cpu_batch_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "output_write_seconds_repeats": [
+        0.011037715999918873,
+        0.013899931999276305,
+        0.011979367000094499
+      ],
+      "peak_allocated_gib": 3.190876007080078,
+      "peak_reserved_gib": 3.58984375
+    },
+    {
+      "status": "ok",
+      "precision": "amp_fp16",
+      "batch_size": 256,
+      "sample_count_per_repeat": 512,
+      "median_samples_per_second": 365.63078739485684,
+      "samples_per_second_repeats": [
+        365.63078739485684,
+        364.7827467883466,
+        365.9834639378195
+      ],
+      "elapsed_seconds_repeats": [
+        1.4003197150000233,
+        1.4035751540000092,
+        1.3989703100000952
+      ],
+      "cpu_graph_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "cpu_batch_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "output_write_seconds_repeats": [
+        0.015456759000244347,
+        0.019273091000286513,
+        0.018598378999740817
+      ],
+      "peak_allocated_gib": 3.8832035064697266,
+      "peak_reserved_gib": 4.59765625
+    },
+    {
+      "status": "ok",
+      "precision": "amp_fp16",
+      "batch_size": 512,
+      "sample_count_per_repeat": 512,
+      "median_samples_per_second": 366.94818857644987,
+      "samples_per_second_repeats": [
+        366.94818857644987,
+        366.5177308027409,
+        368.0335103941535
+      ],
+      "elapsed_seconds_repeats": [
+        1.3952923489996465,
+        1.396931054000106,
+        1.3911776660002033
+      ],
+      "cpu_graph_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "cpu_batch_seconds_repeats": [
+        0,
+        0,
+        0
+      ],
+      "output_write_seconds_repeats": [
+        0.012933381000038935,
+        0.016441402000509697,
+        0.01634276200002205
+      ],
+      "peak_allocated_gib": 5.260046482086182,
+      "peak_reserved_gib": 6.607421875
+    }
+  ],
+  "precision_comparison": {
+    "fp32": {
+      "finite": true,
+      "mean_cosine_to_fp32": 1,
+      "max_absolute_difference": 0
+    },
+    "amp_fp16": {
+      "finite": true,
+      "mean_cosine_to_fp32": 0.9999997019767761,
+      "max_absolute_difference": 0.007467746734619141
+    }
+  },
+  "timing_scope": "encode (tokenize/featurize, device transfer, forward, pooling, CPU float32 return), finite check, memmap write and flush; excludes loading/downloads",
+  "source_sha256": {
+    "esm2.py": "3408ffd5b81b13674ff027eee5aeebd1484e7eeb62c9baa72540773179b69c2a"
+  },
+  "initialization_and_preparation_seconds": 9.495399161000023,
+  "encoder_metadata": {
+    "encoder": "esm2",
+    "model": "esm2_t33_650M_UR50D",
+    "layer": 33,
+    "pooling": "residue_mean_exclude_special_tokens",
+    "output_dim": 1280,
+    "checkpoint_sha256": "ea9d0522b335a8778dea6535a65301f10208dece28cd5865482b0b1fc446168c",
+    "torch_version": "2.6.0+cu124",
+    "esm_version": "2.0.0"
+  },
+  "frozen_eval_verified": true,
+  "completed_utc": "2026-10-26T09:58:09.906381+00:00"
+}

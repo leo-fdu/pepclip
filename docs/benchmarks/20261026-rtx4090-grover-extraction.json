@@ -1,0 +1,434 @@
+{
+  "status": "complete",
+  "model": "grover",
+  "started_utc": "2026-10-26T10:08:07.819271+00:00",
+  "python": "3.10.12",
+  "torch": "2.6.0+cu124",
+  "numpy": "2.2.6",
+  "cuda_runtime": "12.4",
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "sample_sha256": "c03f1e8a01cd488c993b483970a34915a3d0c10bf2be314221a4b942f0f54d49",
+  "sample_count": 2048,
+  "mean_sample_length": 75.1015625,
+  "settings": {
+    "model": "grover",
+    "checkpoint": "/home/ubuntu/pepclip-encoder-bench-20261026/weights/grover_base.pt",
+    "sample": "/home/ubuntu/pepclip-encoder-bench-20261026/sample.json",
+    "output": "/home/ubuntu/pepclip-encoder-bench-20261026/grover-results-v3.json",
+    "batch_sizes": [
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "precisions": [
+      "fp32",
+      "amp_fp16"
+    ],
+    "samples_per_repeat": 64,
+    "repeats": 3,
+    "warmup": 2,
+    "threads": 4
+  },
+  "cases": [
+    {
+      "status": "ok",
+      "precision": "fp32",
+      "batch_size": 4,
+      "sample_count_per_repeat": 64,
+      "median_samples_per_second": 7.55974455490863,
+      "samples_per_second_repeats": [
+        7.55974455490863,
+        7.078908034488858,
+        8.157644314603488
+      ],
+      "elapsed_seconds_repeats": [
+        8.465894519999893,
+        9.040942429000097,
+        7.845402120000472
+      ],
+      "cpu_graph_seconds_repeats": [
+        6.261922479999157,
+        6.7390287359939975,
+        5.7467185629993764
+      ],
+      "cpu_batch_seconds_repeats": [
+        1.5244717929981562,
+        1.5935382569996364,
+        1.4581014439991122
+      ],
+      "output_write_seconds_repeats": [
+        0.004592613000568235,
+        0.005834539998431865,
+        0.005776384999080619
+      ],
+      "peak_allocated_gib": 0.8829936981201172,
+      "peak_reserved_gib": 2.712890625
+    },
+    {
+      "status": "ok",
+      "precision": "fp32",
+      "batch_size": 8,
+      "sample_count_per_repeat": 64,
+      "median_samples_per_second": 7.414040563290682,
+      "samples_per_second_repeats": [
+        7.414040563290682,
+        7.050664082043159,
+        8.096351464527471
+      ],
+      "elapsed_seconds_repeats": [
+        8.632270008999512,
+        9.077159152000604,
+        7.904795176000334
+      ],
+      "cpu_graph_seconds_repeats": [
+        6.302926929998648,
+        6.659646415998395,
+        5.708634365996659
+      ],
+      "cpu_batch_seconds_repeats": [
+        1.586895465001362,
+        1.6429479570006151,
+        1.5059711619987866
+      ],
+      "output_write_seconds_repeats": [
+        0.004907455997454235,
+        0.005209073999139946,
+        0.0066492739988461835
+      ],
+      "peak_allocated_gib": 1.3923802375793457,
+      "peak_reserved_gib": 4.177734375
+    },
+    {
+      "status": "ok",
+      "precision": "fp32",
+      "batch_size": 16,
+      "sample_count_per_repeat": 64,
+      "median_samples_per_second": 7.194153714238718,
+      "samples_per_second_repeats": [
+        7.194153714238718,
+        6.907088869288856,
+        7.993508304042875
+      ],
+      "elapsed_seconds_repeats": [
+        8.896112391000315,
+        9.26584284799992,
+        8.006496967999738
+      ],
+      "cpu_graph_seconds_repeats": [
+        6.499535384998126,
+        6.767623321997235,
+        5.73445514800278
+      ],
+      "cpu_batch_seconds_repeats": [
+        1.584519213999556,
+        1.6567449630010742,
+        1.5105920939995485
+      ],
+      "output_write_seconds_repeats": [
+        0.004338033999374602,
+        0.004374573000859527,
+        0.005066600000645849
+      ],
+      "peak_allocated_gib": 2.520448684692383,
+      "peak_reserved_gib": 5.904296875
+    },
+    {
+      "status": "ok",
+      "precision": "fp32",
+      "batch_size": 32,
+      "sample_count_per_repeat": 64,
+      "median_samples_per_second": 7.41280789792379,
+      "samples_per_second_repeats": [
+        7.41280789792379,
+        6.911446184849111,
+        8.033978545322132
+      ],
+      "elapsed_seconds_repeats": [
+        8.63370545700036,
+        9.260001205000663,
+        7.966165161999925
+      ],
+      "cpu_graph_seconds_repeats": [
+        6.350270992003061,
+        6.76095556799919,
+        5.803686521002419
+      ],
+      "cpu_batch_seconds_repeats": [
+        1.4914345720007987,
+        1.673475851999683,
+        1.4156175009993603
+      ],
+      "output_write_seconds_repeats": [
+        0.004631714999050018,
+        0.004355186000793765,
+        0.0043874760003745905
+      ],
+      "peak_allocated_gib": 4.704835414886475,
+      "peak_reserved_gib": 11.310546875
+    },
+    {
+      "status": "ok",
+      "precision": "fp32",
+      "batch_size": 64,
+      "sample_count_per_repeat": 64,
+      "median_samples_per_second": 7.262704225904346,
+      "samples_per_second_repeats": [
+        7.262704225904346,
+        6.921252825979813,
+        7.767618642591869
+      ],
+      "elapsed_seconds_repeats": [
+        8.812144623999302,
+        9.24688081899967,
+        8.23933343599947
+      ],
+      "cpu_graph_seconds_repeats": [
+        6.370326515999295,
+        6.687371613000323,
+        5.898854564999056
+      ],
+      "cpu_batch_seconds_repeats": [
+        1.6548428679998324,
+        1.727461256999959,
+        1.5838655659999858
+      ],
+      "output_write_seconds_repeats": [
+        0.004944256000271707,
+        0.006646046999776445,
+        0.004820050000489573
+      ],
+      "peak_allocated_gib": 9.041449546813965,
+      "peak_reserved_gib": 22.0703125
+    },
+    {
+      "status": "ok",
+      "precision": "amp_fp16",
+      "batch_size": 4,
+      "sample_count_per_repeat": 64,
+      "median_samples_per_second": 7.666060662374859,
+      "samples_per_second_repeats": [
+        7.666060662374859,
+        7.209253756849418,
+        8.240888200859676
+      ],
+      "elapsed_seconds_repeats": [
+        8.34848598500048,
+        8.877479161999872,
+        7.766153167000084
+      ],
+      "cpu_graph_seconds_repeats": [
+        6.272060193003199,
+        6.730485168999621,
+        5.753294675993857
+      ],
+      "cpu_batch_seconds_repeats": [
+        1.5311811049969037,
+        1.5991703049976422,
+        1.4760873400000492
+      ],
+      "output_write_seconds_repeats": [
+        0.004361187000540667,
+        0.004855234001297504,
+        0.004889557999376848
+      ],
+      "peak_allocated_gib": 0.5569577217102051,
+      "peak_reserved_gib": 1.234375
+    },
+    {
+      "status": "ok",
+      "precision": "amp_fp16",
+      "batch_size": 8,
+      "sample_count_per_repeat": 64,
+      "median_samples_per_second": 7.677410789526306,
+      "samples_per_second_repeats": [
+        7.677410789526306,
+        7.215263326596557,
+        8.366434205384156
+      ],
+      "elapsed_seconds_repeats": [
+        8.33614375399975,
+        8.870085137999922,
+        7.649614928999654
+      ],
+      "cpu_graph_seconds_repeats": [
+        6.311967680996531,
+        6.761523592993399,
+        5.723538373998963
+      ],
+      "cpu_batch_seconds_repeats": [
+        1.585788202999538,
+        1.6512215879993164,
+        1.5095597619992986
+      ],
+      "output_write_seconds_repeats": [
+        0.005052068999248149,
+        0.00432193199685571,
+        0.005077566998807015
+      ],
+      "peak_allocated_gib": 0.8243565559387207,
+      "peak_reserved_gib": 2.171875
+    },
+    {
+      "status": "ok",
+      "precision": "amp_fp16",
+      "batch_size": 16,
+      "sample_count_per_repeat": 64,
+      "median_samples_per_second": 7.6902913764753515,
+      "samples_per_second_repeats": [
+        7.6902913764753515,
+        7.151257083653694,
+        8.313498781186677
+      ],
+      "elapsed_seconds_repeats": [
+        8.322181419000117,
+        8.949475491000157,
+        7.698323134999555
+      ],
+      "cpu_graph_seconds_repeats": [
+        6.2519058799998675,
+        6.784036752991597,
+        5.732426062999366
+      ],
+      "cpu_batch_seconds_repeats": [
+        1.580302981999921,
+        1.650786622999476,
+        1.5077986679998503
+      ],
+      "output_write_seconds_repeats": [
+        0.004072102998179616,
+        0.004386966998936259,
+        0.004604771999765944
+      ],
+      "peak_allocated_gib": 1.4157257080078125,
+      "peak_reserved_gib": 3.16796875
+    },
+    {
+      "status": "ok",
+      "precision": "amp_fp16",
+      "batch_size": 32,
+      "sample_count_per_repeat": 64,
+      "median_samples_per_second": 7.6310983215618196,
+      "samples_per_second_repeats": [
+        7.6310983215618196,
+        7.08657132641226,
+        8.258632823023882
+      ],
+      "elapsed_seconds_repeats": [
+        8.386735080999642,
+        9.031165715000498,
+        7.749466694000148
+      ],
+      "cpu_graph_seconds_repeats": [
+        6.362635740001679,
+        6.803828182004509,
+        5.821507779001877
+      ],
+      "cpu_batch_seconds_repeats": [
+        1.489757735999774,
+        1.6706600090001302,
+        1.4184687890001442
+      ],
+      "output_write_seconds_repeats": [
+        0.003664838999611675,
+        0.0038887430000613676,
+        0.003967612999986159
+      ],
+      "peak_allocated_gib": 2.5686898231506348,
+      "peak_reserved_gib": 5.966796875
+    },
+    {
+      "status": "ok",
+      "precision": "amp_fp16",
+      "batch_size": 64,
+      "sample_count_per_repeat": 64,
+      "median_samples_per_second": 7.465330575550673,
+      "samples_per_second_repeats": [
+        7.465330575550673,
+        7.104519902244413,
+        8.026233941276647
+      ],
+      "elapsed_seconds_repeats": [
+        8.572962623999956,
+        9.008349738000106,
+        7.9738518049998675
+      ],
+      "cpu_graph_seconds_repeats": [
+        6.375330294997184,
+        6.716305443997044,
+        5.876946977998159
+      ],
+      "cpu_batch_seconds_repeats": [
+        1.6611831099999108,
+        1.7322793769999407,
+        1.5857338440000603
+      ],
+      "output_write_seconds_repeats": [
+        0.004771848000018508,
+        0.00475782600005914,
+        0.004878377999375516
+      ],
+      "peak_allocated_gib": 4.85175895690918,
+      "peak_reserved_gib": 11.556640625
+    }
+  ],
+  "precision_comparison": {
+    "fp32": {
+      "finite": true,
+      "mean_cosine_to_fp32": 1,
+      "max_absolute_difference": 0
+    },
+    "amp_fp16": {
+      "finite": true,
+      "mean_cosine_to_fp32": 1,
+      "max_absolute_difference": 0.0009397268295288086
+    }
+  },
+  "timing_scope": "encode (tokenize/featurize, device transfer, forward, pooling, CPU float32 return), finite check, memmap write and flush; excludes loading/downloads",
+  "source_sha256": {
+    "grover.py": "a14b5e047d6508d075f93d094640bd7a1188598bfbb0145132f5866640049c38"
+  },
+  "sequence_to_smiles": {
+    "sample_count": 2048,
+    "seconds": 10.011551620000319,
+    "samples_per_second": 204.56369579203496,
+    "mean_heavy_atoms": 589.35986328125
+  },
+  "initialization_and_preparation_seconds": 19.259076911999728,
+  "encoder_metadata": {
+    "encoder": "grover",
+    "checkpoint_sha256": "47e095880d71baf29ea6f6253473cd56d5406213fa82959c6e14ea469e06b1de",
+    "output_dim": 1600,
+    "pooling": "mean_atom_from_atom+mean_atom_from_bond",
+    "extra_features": false,
+    "torch_version": "2.6.0+cu124",
+    "inference_dropout": 0,
+    "dropout_defaulted": true,
+    "initialized_nonlearned_constants": [
+      "readout.cached_zero_vector"
+    ],
+    "rdkit_version": "2025.09.4",
+    "source_sha256": {
+      "data/__init__.py": "54d6cd86374deeb0c103ef4d4c99c6a34de37424821550f454cfd07f3d9ea322",
+      "data/dist_sampler.py": "d8ab0fc8ca9bd2736994d1e520ad9c234c60fcf9198aca11afec7b97c98a9a1b",
+      "data/groverdataset.py": "dbbdb980c706d4db7fc846168eba0be56853d5bc1786e86816073ca4f0ba6221",
+      "data/moldataset.py": "f046fe119feb28960e69e30d0d25070454a1e494c48e365d05e47d2162bc5e06",
+      "data/molfeaturegenerator.py": "d7220e320034fa542371220564d02e3e62acb42b4726663c14bbb10dc5e23458",
+      "data/molgraph.py": "0e87f105b8635cff23594e1a861640ead52d161aac4ef537853340500d9c8eb7",
+      "data/scaler.py": "0bd4401282130685868a6d2ab966d64c04195162a2bd2a7d181b892308ed0603",
+      "data/task_labels.py": "8b1f0d1b2346ffe5d26c7059e9d121abd97ca5cdc97a3b5e23479796c9d6fcb1",
+      "data/torchvocab.py": "46330f0285d73db2cfe81668338c0dbd7717d6d1357ef7b8e9c45dc41a921792",
+      "model/layers.py": "4aab2ee887c41224357bdbcd8bea2a6addbb5e3e7de38bfa477ecf5712e2a90d",
+      "model/models.py": "3da253c1ea19db1914441388e680fde6a4834b880e86610bd60c68c0f4e02635",
+      "util/metrics.py": "2829510e6887f53f8ffa72434ae3c9215e315e5370d5a8701a47554c818db3ec",
+      "util/multi_gpu_wrapper.py": "e280a768a51a1c0e20fe8a0b165d91eb8b80b0d168db15ecd9647ea2ee081cb2",
+      "util/nn_utils.py": "ce03d3aae8856e28fe089e38d90a5cebafc5775d3181e9ade50e0bf007cf46a0",
+      "util/parsing.py": "9178365f8fb430aba9f924b4d42eb3608e1ff5f355163ab2c1a24b2e0497c9c1",
+      "util/scheduler.py": "062e1ac7b69b9f99939db1197f25e7aea8ee8eba746f0d323363539d9c337cdc",
+      "util/utils.py": "538b50c01e3815521daf4b4f44ffec2d22d177d53b2daab0141a0b9ab77e5010"
+    }
+  },
+  "frozen_eval_verified": true,
+  "completed_utc": "2026-10-26T10:13:53.987612+00:00"
+}

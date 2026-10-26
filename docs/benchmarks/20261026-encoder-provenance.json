@@ -1,0 +1,27 @@
+{
+  "grover_upstream_commit": "40b6d97098e4508687912f3c05eca369fc2c6213",
+  "source_sha256": {
+    "scripts/benchmark_encoders.py": "da3114c18c0b90c32f6ca8269db66e9e33ac3c5308e836cce2378dab0b8920a3",
+    "scripts/benchmark_encoder_gpu.py": "d0baae030280af10ec569e2a254fe245cdaad2951bc2b0a20ba3646f4b7f8b85",
+    "src/pepclip/encoders/esm2.py": "3408ffd5b81b13674ff027eee5aeebd1484e7eeb62c9baa72540773179b69c2a",
+    "src/pepclip/encoders/grover.py": "a14b5e047d6508d075f93d094640bd7a1188598bfbb0145132f5866640049c38"
+  },
+  "distribution_versions": {
+    "torch": "2.6.0",
+    "numpy": "2.2.6",
+    "fair-esm": "2.0.0",
+    "rdkit": "2025.9.4",
+    "scipy": "1.15.3",
+    "pandas": "2.2.3",
+    "scikit-learn": "1.6.1"
+  },
+  "torch_runtime_version": "2.6.0+cu124",
+  "cuda_runtime": "12.4",
+  "driver": "550.142",
+  "checkpoint_sources": {
+    "esm2": "https://dl.fbaipublicfiles.com/fair-esm/models/esm2_t33_650M_UR50D.pt",
+    "grover": "https://github.com/OlivierBeq/jax-grover/releases/download/model_weights/grover_base.pt",
+    "grover_mirror_published_sha256": "47e095880d71baf29ea6f6253473cd56d5406213fa82959c6e14ea469e06b1de",
+    "grover_scope": "Original-format encoder-only base checkpoint from public mirror; checksum verified against that mirror's published pin. Official Drive/OneDrive bytes were not independently compared."
+  }
+}
