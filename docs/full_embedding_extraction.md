@@ -117,6 +117,49 @@ return; restart the same receiver command to resume. Network speed can make
 return longer than inference. No cloud instance is stopped or deleted by these
 scripts; retain cloud output until the local hashes pass.
 
+### Overlap return with extraction
+
+The live run additionally stages only committed row ranges and transfers them
+while the encoders continue. This preserves the exact original FP32 bytes and
+NPY headers, with no re-encoding or quantization. Start the read-only stager:
+
+```bash
+"$RUN_DATA/venv/bin/python" -u scripts/stream_embedding_return.py stage \
+  --root "$RUN_DATA/results/esm3b-grover-base" --staging "$RUN_DATA/transfer-spool"
+```
+
+On the Mac, use this receiver instead of the whole-bundle receiver above:
+
+```bash
+python3 -u scripts/stream_embedding_return.py receive --host "$CLOUD_HOST" \
+  --remote-staging "$RUN_DATA/transfer-spool" --known-hosts "$TASK_KNOWN_HOSTS" \
+  --output embeddings/uniref90-esm3b-grover-base-20261027
+```
+
+Each staged chunk is checked against its original extraction progress SHA256.
+The receiver verifies chunks, writes disjoint rows into sparse NPY files, flushes
+them, and commits local receipt markers. The final local file hashes must equal
+the cloud bundle metadata before `download-verified.json` and `complete.json`
+are published. An incomplete NPY has its final apparent size from the start;
+use `receive-status.json` / received shard counts to measure actual progress.
+No local NumPy, model weights, or encoder runtime is required. A process lock
+prevents duplicate stagers/streaming receivers for the same directory.
+
+Staging can temporarily duplicate up to 202 GB on the cloud disk; the 500 GiB
+disk has space for these chunks, the full matrices, the bounded graph spool,
+weights, environment and inputs. The local transfer cache contains a small
+batch of chunks and each chunk is removed after assembly. Keep cloud staging
+until both final local hashes pass. Both original and streamed return paths
+passed the real 512-sample ESM3B/GROVER test, including exact final NPY SHA256
+matches. A standard-library test checks out-of-order assembly, resumption,
+unchanged headers and rejection of a different source run.
+
+The live graph workers were reniced from 0 to 5 to prioritize GPU launch/decode
+threads while retaining all 40 producers; the operation is recorded in cloud
+`runtime-tuning.jsonl`. This changes scheduling, not features or precision.
+Restarted workers use their normal priority unless this operational tuning is
+reapplied.
+
 ## Preflight evidence
 
 On this target, 2,048 sampled peptides had bitwise identical eight-component

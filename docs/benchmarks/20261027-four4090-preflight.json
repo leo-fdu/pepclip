@@ -130,5 +130,30 @@
     "gpus": 4,
     "visible_memory_mib_per_gpu": 23028,
     "driver": "595.58.03"
+  },
+  "streamed_return_preflight": {
+    "esm2": {
+      "verification": {
+        "shape": [
+          512,
+          2560
+        ],
+        "dtype": "float32",
+        "verified_unix": 1793038953.563246
+      },
+      "features_sha256": "4ead123da6a3346cc0a9b101573215c13cc6e0d3fea1b60641c495dd89c6bf1c"
+    },
+    "grover": {
+      "verification": {
+        "shape": [
+          512,
+          1600
+        ],
+        "dtype": "float32",
+        "verified_unix": 1793038953.581939
+      },
+      "features_sha256": "9855a1429eb6c31e7fe39ea370a5c2c5aba8a55a648799d3ad7b8f5d2e154a8d"
+    },
+    "exact_cloud_npy_hashes_matched": true
   }
 }
