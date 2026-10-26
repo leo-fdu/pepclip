@@ -27,6 +27,17 @@ GROVER uses modules from the [official repository](https://github.com/tencent-ai
 
 ## Workflow After Downloading the Data
 
+For a sequence-only first pass on a large release, use the standard-library-only command below. It streams compressed input without unpacking it, retains complete canonical 10–100 aa sequences, and deduplicates exact sequences using a temporary disk-backed SQLite index (64 MiB page cache). No model dependencies, molecular graphs, or train/validation/test assignments are required at this stage.
+
+```bash
+PYTHONPATH=src python -m pepclip.filter_fasta \
+  --fasta /path/to/uniref90.fasta.gz \
+  --source-version YOUR_UNIREF_RELEASE \
+  --output data/processed/uniref90-sequences-v1
+```
+
+Outputs are `peptides.fasta` (first original header retained), `rejected.jsonl` (nonstandard residues and duplicate mappings), `progress.json` (every million input records), and `metadata.json` (written only on successful completion). Metadata includes full-input record-content SHA256, source file size/mtime, filtering counts, and retained length histogram. Length is counted after concatenating FASTA sequence lines and trimming line-edge whitespace; only uppercase standard residue letters are accepted, with no cropping, substitution, or modification interpretation. Rejection precedence is length, nonstandard residue, then duplicate sequence; invalid-residue statistics cover only the length-eligible records. Use an explicit `unknown` source version if the downloaded release cannot be established; file dates alone do not establish the release. Existing output directories are refused and failed partial outputs remain for diagnosis. Feed `peptides.fasta` to `prepare` below for graph construction and splitting. Its metadata will describe the filtered input; retain the first-pass metadata for full-source provenance. Hash-based split assignment for each retained ID remains the same.
+
 The paths and release below are placeholders. The CLI can also be invoked with `PYTHONPATH=src python -m pepclip.cli`.
 
 ```bash
