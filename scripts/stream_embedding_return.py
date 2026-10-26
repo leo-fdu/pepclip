@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 import fcntl
 import hashlib
 import json
+import multiprocessing as mp
 import os
 from pathlib import Path
 import shutil
@@ -120,6 +121,40 @@ def write_range(path, offset, source):
         os.close(fd)
 
 
+def transfer_worker(command, password, connection):
+    try:
+        connection.send(authenticated(command,password))
+    finally:
+        connection.close()
+
+
+def transfer_commands(commands,password):
+    """Independent password-authenticated flows; credentials use only IPC/RAM."""
+    if len(commands)==1:
+        return [authenticated(commands[0],password)]
+    ctx=mp.get_context("spawn")
+    workers=[]
+    try:
+        for command in commands:
+            parent,child=ctx.Pipe(duplex=False)
+            process=ctx.Process(target=transfer_worker,args=(command,password,child))
+            process.start()
+            child.close()
+            workers.append((process,parent))
+        results=[connection.recv() for _,connection in workers]
+        for process,_ in workers:
+            process.join()
+            if process.exitcode!=0:
+                raise RuntimeError("Transfer worker exited unsuccessfully")
+        return results
+    finally:
+        for process,connection in workers:
+            if process.is_alive():
+                process.terminate()
+            process.join()
+            connection.close()
+
+
 def initialize_local(root,manifest):
     state=root/"stream-manifest.json"
     if state.exists() and json.loads(state.read_text()) != manifest:
@@ -183,17 +218,27 @@ def receive(args):
             needed=sum(r["count"]*manifest["models"][m]["shape"][1]*4 for m in MODELS for r in selected[m])
             if shutil.disk_usage(root).free<2*needed+5*10**9:
                 raise RuntimeError("Insufficient disk space for transfer plus assembled rows")
-            with tempfile.NamedTemporaryFile(mode="w",prefix="transfer-list-",dir=cache,delete=False) as handle:
-                handle.write("\n".join(files)+"\n")
-                listing=Path(handle.name)
+            groups=([files] if args.connections==1 else
+                    [[f for f in files if not f.startswith("grover/")],
+                     [f for f in files if f.startswith("grover/")]])
+            listings,commands=[],[]
+            for group in groups:
+                if not group:
+                    continue
+                with tempfile.NamedTemporaryFile(mode="w",prefix="transfer-list-",dir=cache,delete=False) as handle:
+                    handle.write("\n".join(group)+"\n")
+                    listing=Path(handle.name)
+                listings.append(listing)
+                commands.append(["rsync","-rtz","--partial","--inplace","--timeout=300","--files-from",str(listing),
+                         "-e",shlex.join(ssh),f"{host}:{args.remote_staging}/",str(cache)+"/"])
             try:
-                command=["rsync","-rtz","--partial","--inplace","--timeout=300","--files-from",str(listing),
-                         "-e",shlex.join(ssh),f"{host}:{args.remote_staging}/",str(cache)+"/"]
-                code,log=authenticated(command,password)
+                results=transfer_commands(commands,password)
             finally:
-                listing.unlink(missing_ok=True)
-            if code:
-                print(now(),"transfer_retry",code,log[-1000:],flush=True)
+                for listing in listings:
+                    listing.unlink(missing_ok=True)
+            failed=[(code,log[-1000:]) for code,log in results if code]
+            if failed:
+                print(now(),"transfer_retry",failed,flush=True)
                 time.sleep(args.poll_seconds)
                 continue
         if not (root/"ids.json").exists() and (cache/"ids.json").exists():
@@ -244,6 +289,7 @@ def main():
     local.add_argument("--output",type=Path,required=True)
     local.add_argument("--poll-seconds",type=int,default=120)
     local.add_argument("--chunks-per-model",type=int,default=8)
+    local.add_argument("--connections",type=int,choices=[1,2],default=2)
     args=p.parse_args()
     if args.poll_seconds<1 or (args.mode=="receive" and args.chunks_per_model<1):
         raise ValueError("Intervals/chunk limits must be positive")

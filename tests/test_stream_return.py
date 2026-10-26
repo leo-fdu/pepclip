@@ -11,10 +11,19 @@ scripts=Path(__file__).resolve().parents[1]/"scripts"
 sys.path.insert(0,str(scripts))
 spec=importlib.util.spec_from_file_location("stream_embedding_return",scripts/"stream_embedding_return.py")
 stream=importlib.util.module_from_spec(spec)
+sys.modules[spec.name]=stream
 spec.loader.exec_module(stream)
 
 
 class StreamReturnTests(unittest.TestCase):
+    def test_parallel_transfer_flows_keep_outputs_and_exit_codes_separate(self):
+        commands=[[sys.executable,"-c","print('flow-one')"],
+                  [sys.executable,"-c","print('flow-two'); raise SystemExit(3)"]]
+        results=stream.transfer_commands(commands,"test-placeholder")
+        self.assertEqual([code for code,_ in results],[0,3])
+        self.assertIn("flow-one",results[0][1])
+        self.assertIn("flow-two",results[1][1])
+
     def test_out_of_order_rows_preserve_header_and_float_bytes(self):
         text="{'descr': '<f4', 'fortran_order': False, 'shape': (4, 2), }"
         padding=128-10-len(text)-1

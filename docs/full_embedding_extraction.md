@@ -133,7 +133,7 @@ On the Mac, use this receiver instead of the whole-bundle receiver above:
 ```bash
 python3 -u scripts/stream_embedding_return.py receive --host "$CLOUD_HOST" \
   --remote-staging "$RUN_DATA/transfer-spool" --known-hosts "$TASK_KNOWN_HOSTS" \
-  --output embeddings/uniref90-esm3b-grover-base-20261027
+  --output embeddings/uniref90-esm3b-grover-base-20261027 --connections 2
 ```
 
 Each staged chunk is checked against its original extraction progress SHA256.
@@ -153,6 +153,12 @@ until both final local hashes pass. Both original and streamed return paths
 passed the real 512-sample ESM3B/GROVER test, including exact final NPY SHA256
 matches. A standard-library test checks out-of-order assembly, resumption,
 unchanged headers and rejection of a different source run.
+Two independent rsync connections are used by default (one per modality).
+Their passwords are passed through local process IPC and stay in memory;
+files and model outputs do not overlap. Use `--connections 1` if a second flow
+does not improve the actual network path. A real 512-sample two-connection
+return also matched both original full NPY hashes. A local PTY/process test
+checks independent outputs and propagation of nonzero transfer exit codes.
 
 The live graph workers were reniced from 0 to 5 to prioritize GPU launch/decode
 threads while retaining all 40 producers; the operation is recorded in cloud

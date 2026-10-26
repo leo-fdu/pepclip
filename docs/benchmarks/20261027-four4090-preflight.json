@@ -155,5 +155,24 @@
       "features_sha256": "9855a1429eb6c31e7fe39ea370a5c2c5aba8a55a648799d3ad7b8f5d2e154a8d"
     },
     "exact_cloud_npy_hashes_matched": true
+  },
+  "parallel_streamed_return_preflight": {
+    "esm2": {
+      "shape": [
+        512,
+        2560
+      ],
+      "dtype": "float32",
+      "verified_unix": 1793040085.5329778
+    },
+    "grover": {
+      "shape": [
+        512,
+        1600
+      ],
+      "dtype": "float32",
+      "verified_unix": 1793040085.5435798
+    },
+    "exact_cloud_npy_hashes_matched": true
   }
 }
