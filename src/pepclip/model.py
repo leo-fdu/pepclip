@@ -28,6 +28,22 @@ class PeptideCLIP(nn.Module):
         return self.encode_sequence(sequence), self.encode_graph(graph)
 
 
+class EmbeddingCLIP(PeptideCLIP):
+    """Two independent projection heads over any paired, precomputed vectors.
+
+    Legacy state-dict names are retained for existing peptide checkpoints.
+    No pretrained encoder is part of this module or its optimizer.
+    """
+    def __init__(self, input_dim_a, input_dim_b, hidden_dim=512, projection_dim=256):
+        super().__init__(input_dim_a, input_dim_b, hidden_dim, projection_dim)
+
+    def encode_a(self, features):
+        return self.encode_sequence(features)
+
+    def encode_b(self, features):
+        return self.encode_graph(features)
+
+
 def clip_loss(sequence, graph, temperature=0.07):
     if not math.isfinite(temperature) or temperature <= 0:
         raise ValueError("Temperature must be finite and positive")

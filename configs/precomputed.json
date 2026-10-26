@@ -1,0 +1,13 @@
+{
+  "hidden_dim": 512,
+  "projection_dim": 256,
+  "temperature": 0.07,
+  "batch_size": 8192,
+  "validation_batch_size": 8192,
+  "validation_mode": "batch",
+  "epochs": 20,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "seed": 42,
+  "device": "cuda"
+}

@@ -1,12 +1,12 @@
 # PepCLIP
 
-Freeze a protein language model and a pretrained molecular graph model, then align their representations with bidirectional CLIP training using an independent `Linear → GELU → Linear` projection head for each modality. The final encoder is **GROVER + graph projection head + L2 normalization**. The initial combination is ESM2 / GROVER; encoder types, MLP hidden dimensions, and the shared embedding dimension are configurable.
+The main training module accepts **any two sets of paired, precomputed embedding vectors** and trains only independent `Linear → GELU → Linear` projection heads using bidirectional CLIP loss. Input dimensions can differ. Training does not load or execute pretrained encoders and does not require RDKit, fair-esm, or GROVER. See the [precomputed embedding workflow](docs/precomputed_embeddings.md) for input formats, import, training, evaluation, resumption, and projection-only inference.
 
-The current implementation supports UniRef90 FASTA cleaning, sequence-to-linear-molecular-graph conversion, independent representation extraction, training from caches, bidirectional retrieval evaluation over the full candidate set, training resumption, and graph-side inference. Real pretrained weights and the complete UniRef90 dataset have not yet been validated in this project. Unit tests use explicitly labeled synthetic encoders and do not replace real-model validation.
+The research application aligns PLM and molecular-graph representations of peptides. Its final encoder is the selected molecular graph encoder plus its trained projection head and L2 normalization; ESM2/GROVER is the initial combination. UniRef90 preparation and encoder extraction remain separate optional tools. Sequence-only UniRef90 filtering has completed (see [run summary](docs/data/uniref90-sequences-20261026.json)); full graph construction and real pretrained-model validation remain pending. Synthetic tests do not replace real-model validation.
 
 ## Installation
 
-Python 3.10–3.12 is recommended. Training requires only PyTorch and NumPy; data preparation requires RDKit, and ESM2 extraction requires fair-esm.
+Python 3.10–3.12 is recommended. Install the main module in the target runtime with `python -m pip install -e .`; it requires only PyTorch and NumPy. The optional peptide preparation/extraction tools additionally require RDKit/fair-esm as shown below. No local development environment setup is required.
 
 ```bash
 python -m venv .venv
@@ -81,7 +81,7 @@ pepclip train \
 
 Command-line arguments override the configuration file. Temperature is fixed at 0.07 by default; only the two projection heads are included in the optimizer. Different encoder combinations may have different input dimensions, declared and validated by their caches, but must share the same output dimension. Within a batch, the matching peptide is the sole positive and all other samples are negatives. A final single-sample batch is merged into the preceding batch rather than discarded. Caches are strictly checked for IDs, data fingerprints, dimensions, finite values, and file checksums, and are paired by ID rather than row number.
 
-Each epoch evaluates the entire validation set and reports bidirectional Recall@1/5/10, MRR, mean rank, and CLIP loss over the full candidate set. Similarity ties receive the worst rank. Chunked computation avoids allocating a full N×N matrix, but still takes O(N²) time. Fix an appropriate validation-set size before large-scale training rather than randomly resampling candidates each epoch. The test set is used only through an explicit `evaluate` command.
+By default, each epoch computes sample-weighted **batch-local** bidirectional CLIP loss over the validation split, with independently configurable `validation_batch_size`. Validation order is fixed and a final singleton is merged into the previous batch. Full-candidate retrieval is opt-in (`evaluate --mode retrieval`, or `--validation-mode retrieval` during training), costs O(N²) time, and reports bidirectional Recall@1/5/10, MRR, mean rank, and retrieval loss; ties receive the worst rank. Batch loss and full-candidate retrieval loss have different negative pools and are not interchangeable. Training saves the best checkpoint but still runs the configured number of epochs; automatic patience-based early stopping is not implemented. A test split is optional for generic bundles and is used only through an explicit `evaluate --split test`.
 
 Training saves `config.json`, `provenance.json`, `metrics.jsonl`, `last.pt`, and `best.pt`. The last two contain resumable training state and the inference model with the lowest validation loss, respectively. Pretrained encoder weights are not duplicated.
 
@@ -99,7 +99,7 @@ pepclip evaluate \
   --sequence-cache embeddings/esm2-650m --graph-cache embeddings/grover-base
 ```
 
-When resuming, only the target total epoch count and device may change; all other configuration, data, and encoder fingerprints must match. Bitwise equivalence across devices is not guaranteed. Continuous versus resumed training on CPU in the same environment is covered by a regression test. If deterministic CUDA matrix operations are needed, set `CUBLAS_WORKSPACE_CONFIG=:4096:8` before starting.
+When resuming, only the target total epoch count and device may change; all other configuration, data, and encoder fingerprints must match. Checkpoints from before batch-local validation require explicitly preserving their old settings with `--validation-mode retrieval --validation-batch-size ORIGINAL_BATCH_SIZE` and the original encoder-name configuration. Bitwise equivalence across devices is not guaranteed. Continuous versus resumed training on CPU in the same environment is covered by a regression test. For deterministic CUDA matrix operations, set `CUBLAS_WORKSPACE_CONFIG=:4096:8` before starting.
 
 ## Graph-Side Inference and Extensions
 
@@ -115,7 +115,7 @@ z = encoder.encode_molecules(["YOUR_ISOMERIC_SMILES"])
 
 Provide complete molecular structures; sequences are not automatically reconstructed from SMILES. The code can accept chemical structures, but training only on linear natural peptides does not demonstrate effectiveness on cyclic peptides or noncanonical residues. Inference checks that encoder metadata matches the training cache.
 
-To add an encoder, implement the `FrozenEncoder` interface with `encode()`, `output_dim`, and `metadata()`, then register it through `register_encoder(modality, name, factory)`. The CLI currently exposes initialization options for ESM2/GROVER; models requiring additional parameters must also extend CLI argument routing. The cache-based trainer is independent of specific adapters.
+Externally computed embeddings require **no encoder registration or adapter changes**: import them into generic bundles. Only to extend the optional `extract` tool, implement the `FrozenEncoder` interface and register it through `register_encoder(modality, name, factory)`; extraction models requiring additional parameters must also extend CLI routing. The composed `PeptideEncoder` above uses legacy graph-cache metadata; use `ProjectedEmbeddingEncoder` with generic bundles and externally computed features.
 
 ## Validation
 
@@ -125,7 +125,7 @@ PYTHONPATH=src python -m unittest discover -s tests -v
 
 Coverage includes length boundaries, standard-residue filtering, structural composition and chirality, group-based splitting, pairing of reordered caches and corruption checks, freezing and gradient flow, contrastive loss, overfitting synthetic samples, full-candidate retrieval, and consistency when resuming training.
 
-Validation with real resources is still pending for ESM2/GROVER checkpoint loading and extraction, compatibility with the official GROVER environment, processing time and scale for the full UniRef90 dataset, GPU execution, and actual peptide encoder performance. Database and pretrained-weight versions must be pinned and recorded for real runs.
+The generic bundle/training regression suite can run without chemical or backbone packages: `PYTHONPATH=src python -m unittest discover -s tests -p 'test_embeddings.py' -v`. Together with `tests/test_pairs.py`, it covers different vector dimensions, reordered IDs, reusable subsets/splits, rejected corruption/nonfinite values, duplicate identity/group leakage, projection gradients, batch validation, resumption, and projection-only inference. In this development turn syntax/configuration/diff checks and six standard-library data tests passed. Local PyTorch/NumPy/RDKit are absent, so the new tensor tests have not been executed. Real ESM2/GROVER loading, full graph construction/extraction, GPU execution, and downstream performance remain unvalidated. Database, weight, and exact target runtime versions must be pinned and recorded for real runs.
 
 Reference interfaces: [official ESM examples](https://github.com/facebookresearch/esm#usage-); [GROVER fingerprint](https://github.com/tencent-ailab/grover/blob/main/grover/model/models.py); [UniRef overview](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/uniref/).
 

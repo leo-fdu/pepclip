@@ -70,9 +70,9 @@ class FeatureCache:
 
 
 class PairedFeatures(Dataset):
-    def __init__(self, rows, sequence_cache, graph_cache, split):
+    def __init__(self, rows, cache_a, cache_b, split):
         self.rows = [row for row in rows if row["split"] == split]
-        self.sequence, self.graph = sequence_cache, graph_cache
+        self.cache_a, self.cache_b = cache_a, cache_b
         if len(self.rows) < 2:
             raise ValueError(f"Split {split} must contain at least 2 unique samples")
 
@@ -81,4 +81,4 @@ class PairedFeatures(Dataset):
 
     def __getitem__(self, index):
         sid = self.rows[index]["sample_id"]
-        return self.sequence.get(sid), self.graph.get(sid)
+        return self.cache_a.get(sid), self.cache_b.get(sid)

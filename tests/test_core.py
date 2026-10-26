@@ -213,7 +213,8 @@ class CoreTests(unittest.TestCase):
                                    model_from_checkpoint(b).encode_graph(torch.ones(2, 6)))
         with contextlib.redirect_stdout(io.StringIO()) as out:
             main(["evaluate", "--manifest", str(manifest), "--sequence-cache", str(seq),
-                  "--graph-cache", str(graph), "--checkpoint", str(self.root / "full/best.pt")])
+                  "--graph-cache", str(graph), "--checkpoint", str(self.root / "full/best.pt"),
+                  "--split", "test", "--mode", "retrieval"])
         self.assertEqual(json.loads(out.getvalue())["candidate_count"], 2)
 
 

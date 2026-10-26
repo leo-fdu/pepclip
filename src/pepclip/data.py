@@ -135,3 +135,36 @@ def load_manifest(path):
 
 def manifest_fingerprint(rows):
     return fingerprint(sorted(rows, key=lambda row: row["sample_id"]))
+
+
+def load_pairs(path):
+    """One positive pair per unique ID; each side must map the ID to that sample."""
+    rows, ids, identities, group_splits = [], set(), set(), {}
+    with open(path) as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            sid, split = row.get("sample_id"), row.get("split")
+            if not isinstance(sid, str) or not sid.strip() or sid in ids:
+                raise ValueError("Pair manifest has empty or duplicate sample ID")
+            if split not in {"train", "val", "test"}:
+                raise ValueError("Pair manifest split must be train, val, or test")
+            # Optional molecular/sequence identity keys catch duplicates across IDs.
+            identity = row.get("identity_id", sid)
+            group = row.get("group_id", sid)
+            if any(not isinstance(value, str) or not value.strip() for value in (identity, group)):
+                raise ValueError("identity_id and group_id must be nonempty strings")
+            if identity in identities:
+                raise ValueError("Duplicate identity_id: deduplicate positives before training")
+            if group in group_splits and group_splits[group] != split:
+                raise ValueError("Similarity group crosses data splits")
+            ids.add(sid)
+            identities.add(identity)
+            group_splits[group] = split
+            # Only pairing and split semantics enter this manifest fingerprint.
+            rows.append(dict(sample_id=sid, split=split, identity_id=identity, group_id=group))
+    if not rows:
+        raise ValueError("Empty pair manifest")
+    # Stable order fixes validation batch membership across input-line reorderings.
+    return sorted(rows, key=lambda row: row["sample_id"])
