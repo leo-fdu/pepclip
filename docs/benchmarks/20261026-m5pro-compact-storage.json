@@ -1,0 +1,1037 @@
+{
+  "samples": 2048,
+  "original_bytes": 40703928,
+  "packed_bytes": 13497195,
+  "encode_seconds": 1.4243847518227994,
+  "decode_seconds": 0.3669196688570082,
+  "bitwise_roundtrip": true,
+  "chunks": 128,
+  "numpy_version": "2.4.1",
+  "input": "outputs/cpu-benchmark-20261026/sustained8/cpu-w8-r0",
+  "cases": [
+    {
+      "chunk": 0,
+      "samples": 16,
+      "original_bytes": 328875,
+      "packed_bytes": 108664,
+      "encode_seconds": 0.018063249997794628,
+      "decode_seconds": 0.00437583401799202
+    },
+    {
+      "chunk": 1,
+      "samples": 16,
+      "original_bytes": 314128,
+      "packed_bytes": 104420,
+      "encode_seconds": 0.011254749959334731,
+      "decode_seconds": 0.002691167057491839
+    },
+    {
+      "chunk": 2,
+      "samples": 16,
+      "original_bytes": 329387,
+      "packed_bytes": 108493,
+      "encode_seconds": 0.011390208033844829,
+      "decode_seconds": 0.0027853749925270677
+    },
+    {
+      "chunk": 3,
+      "samples": 16,
+      "original_bytes": 300070,
+      "packed_bytes": 99401,
+      "encode_seconds": 0.01024745893664658,
+      "decode_seconds": 0.002579250023700297
+    },
+    {
+      "chunk": 4,
+      "samples": 16,
+      "original_bytes": 329123,
+      "packed_bytes": 109121,
+      "encode_seconds": 0.011344915954396129,
+      "decode_seconds": 0.0027877920074388385
+    },
+    {
+      "chunk": 5,
+      "samples": 16,
+      "original_bytes": 348851,
+      "packed_bytes": 115158,
+      "encode_seconds": 0.013254666002467275,
+      "decode_seconds": 0.004150374908931553
+    },
+    {
+      "chunk": 6,
+      "samples": 16,
+      "original_bytes": 313386,
+      "packed_bytes": 103924,
+      "encode_seconds": 0.010703124920837581,
+      "decode_seconds": 0.0026891250163316727
+    },
+    {
+      "chunk": 7,
+      "samples": 16,
+      "original_bytes": 338800,
+      "packed_bytes": 112073,
+      "encode_seconds": 0.011956750066019595,
+      "decode_seconds": 0.0030504169408231974
+    },
+    {
+      "chunk": 8,
+      "samples": 16,
+      "original_bytes": 308224,
+      "packed_bytes": 102157,
+      "encode_seconds": 0.010574000072665513,
+      "decode_seconds": 0.0025640829699113965
+    },
+    {
+      "chunk": 9,
+      "samples": 16,
+      "original_bytes": 299436,
+      "packed_bytes": 99306,
+      "encode_seconds": 0.010615292005240917,
+      "decode_seconds": 0.002666790969669819
+    },
+    {
+      "chunk": 10,
+      "samples": 16,
+      "original_bytes": 301667,
+      "packed_bytes": 100193,
+      "encode_seconds": 0.010194084024988115,
+      "decode_seconds": 0.0025638749357312918
+    },
+    {
+      "chunk": 11,
+      "samples": 16,
+      "original_bytes": 300740,
+      "packed_bytes": 99953,
+      "encode_seconds": 0.010507958941161633,
+      "decode_seconds": 0.0025025829672813416
+    },
+    {
+      "chunk": 12,
+      "samples": 16,
+      "original_bytes": 290921,
+      "packed_bytes": 96799,
+      "encode_seconds": 0.010284416959621012,
+      "decode_seconds": 0.0026241670129820704
+    },
+    {
+      "chunk": 13,
+      "samples": 16,
+      "original_bytes": 324805,
+      "packed_bytes": 107753,
+      "encode_seconds": 0.011218958999961615,
+      "decode_seconds": 0.0028479580068960786
+    },
+    {
+      "chunk": 14,
+      "samples": 16,
+      "original_bytes": 326393,
+      "packed_bytes": 108713,
+      "encode_seconds": 0.011401124997064471,
+      "decode_seconds": 0.0027260419446974993
+    },
+    {
+      "chunk": 15,
+      "samples": 16,
+      "original_bytes": 314704,
+      "packed_bytes": 104781,
+      "encode_seconds": 0.010886791977100074,
+      "decode_seconds": 0.0027264580130577087
+    },
+    {
+      "chunk": 16,
+      "samples": 16,
+      "original_bytes": 320872,
+      "packed_bytes": 106591,
+      "encode_seconds": 0.010892416932620108,
+      "decode_seconds": 0.0028207499999552965
+    },
+    {
+      "chunk": 17,
+      "samples": 16,
+      "original_bytes": 320191,
+      "packed_bytes": 106297,
+      "encode_seconds": 0.011233166907913983,
+      "decode_seconds": 0.002836583065800369
+    },
+    {
+      "chunk": 18,
+      "samples": 16,
+      "original_bytes": 297917,
+      "packed_bytes": 98572,
+      "encode_seconds": 0.010055040940642357,
+      "decode_seconds": 0.0027256669709458947
+    },
+    {
+      "chunk": 19,
+      "samples": 16,
+      "original_bytes": 321555,
+      "packed_bytes": 106572,
+      "encode_seconds": 0.010873332968913019,
+      "decode_seconds": 0.0028430831152945757
+    },
+    {
+      "chunk": 20,
+      "samples": 16,
+      "original_bytes": 341043,
+      "packed_bytes": 112882,
+      "encode_seconds": 0.011820583022199571,
+      "decode_seconds": 0.0030055829556658864
+    },
+    {
+      "chunk": 21,
+      "samples": 16,
+      "original_bytes": 316938,
+      "packed_bytes": 104862,
+      "encode_seconds": 0.010678958962671459,
+      "decode_seconds": 0.0026346250670030713
+    },
+    {
+      "chunk": 22,
+      "samples": 16,
+      "original_bytes": 309538,
+      "packed_bytes": 102879,
+      "encode_seconds": 0.010403874912299216,
+      "decode_seconds": 0.0026542500127106905
+    },
+    {
+      "chunk": 23,
+      "samples": 16,
+      "original_bytes": 313983,
+      "packed_bytes": 104138,
+      "encode_seconds": 0.010851583909243345,
+      "decode_seconds": 0.002772500040009618
+    },
+    {
+      "chunk": 24,
+      "samples": 16,
+      "original_bytes": 307176,
+      "packed_bytes": 102179,
+      "encode_seconds": 0.01046208303887397,
+      "decode_seconds": 0.0025154169416055083
+    },
+    {
+      "chunk": 25,
+      "samples": 16,
+      "original_bytes": 313037,
+      "packed_bytes": 104076,
+      "encode_seconds": 0.010675792000256479,
+      "decode_seconds": 0.002750875079073012
+    },
+    {
+      "chunk": 26,
+      "samples": 16,
+      "original_bytes": 333886,
+      "packed_bytes": 110086,
+      "encode_seconds": 0.011317291995510459,
+      "decode_seconds": 0.0028969580307602882
+    },
+    {
+      "chunk": 27,
+      "samples": 16,
+      "original_bytes": 346630,
+      "packed_bytes": 114725,
+      "encode_seconds": 0.011992332991212606,
+      "decode_seconds": 0.0030522500164806843
+    },
+    {
+      "chunk": 28,
+      "samples": 16,
+      "original_bytes": 359866,
+      "packed_bytes": 119237,
+      "encode_seconds": 0.013441500021144748,
+      "decode_seconds": 0.004867125069722533
+    },
+    {
+      "chunk": 29,
+      "samples": 16,
+      "original_bytes": 311675,
+      "packed_bytes": 103058,
+      "encode_seconds": 0.010778790921904147,
+      "decode_seconds": 0.0028155840700492263
+    },
+    {
+      "chunk": 30,
+      "samples": 16,
+      "original_bytes": 318285,
+      "packed_bytes": 105074,
+      "encode_seconds": 0.010651082964614034,
+      "decode_seconds": 0.0028302089776843786
+    },
+    {
+      "chunk": 31,
+      "samples": 16,
+      "original_bytes": 342920,
+      "packed_bytes": 113455,
+      "encode_seconds": 0.01165087497793138,
+      "decode_seconds": 0.0030749590368941426
+    },
+    {
+      "chunk": 32,
+      "samples": 16,
+      "original_bytes": 324867,
+      "packed_bytes": 108172,
+      "encode_seconds": 0.011086457991041243,
+      "decode_seconds": 0.002877083024941385
+    },
+    {
+      "chunk": 33,
+      "samples": 16,
+      "original_bytes": 309558,
+      "packed_bytes": 102250,
+      "encode_seconds": 0.010459250072017312,
+      "decode_seconds": 0.002600042033009231
+    },
+    {
+      "chunk": 34,
+      "samples": 16,
+      "original_bytes": 288158,
+      "packed_bytes": 96206,
+      "encode_seconds": 0.0098589580738917,
+      "decode_seconds": 0.002564749913290143
+    },
+    {
+      "chunk": 35,
+      "samples": 16,
+      "original_bytes": 336220,
+      "packed_bytes": 111186,
+      "encode_seconds": 0.011386999976821244,
+      "decode_seconds": 0.0029617079999297857
+    },
+    {
+      "chunk": 36,
+      "samples": 16,
+      "original_bytes": 319874,
+      "packed_bytes": 106192,
+      "encode_seconds": 0.01134658302180469,
+      "decode_seconds": 0.0030594589188694954
+    },
+    {
+      "chunk": 37,
+      "samples": 16,
+      "original_bytes": 299519,
+      "packed_bytes": 99080,
+      "encode_seconds": 0.011751167010515928,
+      "decode_seconds": 0.0032764580100774765
+    },
+    {
+      "chunk": 38,
+      "samples": 16,
+      "original_bytes": 270301,
+      "packed_bytes": 90218,
+      "encode_seconds": 0.010191916022449732,
+      "decode_seconds": 0.0026259589940309525
+    },
+    {
+      "chunk": 39,
+      "samples": 16,
+      "original_bytes": 296495,
+      "packed_bytes": 99143,
+      "encode_seconds": 0.011837792000733316,
+      "decode_seconds": 0.0031705419532954693
+    },
+    {
+      "chunk": 40,
+      "samples": 16,
+      "original_bytes": 318992,
+      "packed_bytes": 105669,
+      "encode_seconds": 0.012875499902293086,
+      "decode_seconds": 0.0033535840921103954
+    },
+    {
+      "chunk": 41,
+      "samples": 16,
+      "original_bytes": 321335,
+      "packed_bytes": 106278,
+      "encode_seconds": 0.011729625053703785,
+      "decode_seconds": 0.0027536250418052077
+    },
+    {
+      "chunk": 42,
+      "samples": 16,
+      "original_bytes": 291573,
+      "packed_bytes": 97111,
+      "encode_seconds": 0.010489833075553179,
+      "decode_seconds": 0.002593624987639487
+    },
+    {
+      "chunk": 43,
+      "samples": 16,
+      "original_bytes": 332076,
+      "packed_bytes": 109811,
+      "encode_seconds": 0.011516541009768844,
+      "decode_seconds": 0.002989124972373247
+    },
+    {
+      "chunk": 44,
+      "samples": 16,
+      "original_bytes": 328417,
+      "packed_bytes": 108520,
+      "encode_seconds": 0.011469292105175555,
+      "decode_seconds": 0.002882665954530239
+    },
+    {
+      "chunk": 45,
+      "samples": 16,
+      "original_bytes": 330469,
+      "packed_bytes": 109753,
+      "encode_seconds": 0.011769667034968734,
+      "decode_seconds": 0.0031256669899448752
+    },
+    {
+      "chunk": 46,
+      "samples": 16,
+      "original_bytes": 294366,
+      "packed_bytes": 98335,
+      "encode_seconds": 0.0103783750673756,
+      "decode_seconds": 0.0026093749329447746
+    },
+    {
+      "chunk": 47,
+      "samples": 16,
+      "original_bytes": 309460,
+      "packed_bytes": 102710,
+      "encode_seconds": 0.010586249991320074,
+      "decode_seconds": 0.0028017921140417457
+    },
+    {
+      "chunk": 48,
+      "samples": 16,
+      "original_bytes": 312602,
+      "packed_bytes": 103645,
+      "encode_seconds": 0.010617125080898404,
+      "decode_seconds": 0.002679582918062806
+    },
+    {
+      "chunk": 49,
+      "samples": 16,
+      "original_bytes": 340977,
+      "packed_bytes": 112704,
+      "encode_seconds": 0.011652834014967084,
+      "decode_seconds": 0.0030959160067141056
+    },
+    {
+      "chunk": 50,
+      "samples": 16,
+      "original_bytes": 316491,
+      "packed_bytes": 104934,
+      "encode_seconds": 0.010930499993264675,
+      "decode_seconds": 0.002773375017568469
+    },
+    {
+      "chunk": 51,
+      "samples": 16,
+      "original_bytes": 315009,
+      "packed_bytes": 104367,
+      "encode_seconds": 0.010700041078962386,
+      "decode_seconds": 0.0027575419517233968
+    },
+    {
+      "chunk": 52,
+      "samples": 16,
+      "original_bytes": 340588,
+      "packed_bytes": 113059,
+      "encode_seconds": 0.012342500034719706,
+      "decode_seconds": 0.0032838749466463923
+    },
+    {
+      "chunk": 53,
+      "samples": 16,
+      "original_bytes": 330223,
+      "packed_bytes": 109752,
+      "encode_seconds": 0.011395541951060295,
+      "decode_seconds": 0.0028657499933615327
+    },
+    {
+      "chunk": 54,
+      "samples": 16,
+      "original_bytes": 328316,
+      "packed_bytes": 108407,
+      "encode_seconds": 0.011286708060652018,
+      "decode_seconds": 0.0029059589141979814
+    },
+    {
+      "chunk": 55,
+      "samples": 16,
+      "original_bytes": 325483,
+      "packed_bytes": 108040,
+      "encode_seconds": 0.011225708993151784,
+      "decode_seconds": 0.002761957934126258
+    },
+    {
+      "chunk": 56,
+      "samples": 16,
+      "original_bytes": 323362,
+      "packed_bytes": 107043,
+      "encode_seconds": 0.011022041901014745,
+      "decode_seconds": 0.0028617080533877015
+    },
+    {
+      "chunk": 57,
+      "samples": 16,
+      "original_bytes": 338032,
+      "packed_bytes": 112373,
+      "encode_seconds": 0.011640166048891842,
+      "decode_seconds": 0.0029949169838801026
+    },
+    {
+      "chunk": 58,
+      "samples": 16,
+      "original_bytes": 336849,
+      "packed_bytes": 111391,
+      "encode_seconds": 0.011556584038771689,
+      "decode_seconds": 0.0029161659767851233
+    },
+    {
+      "chunk": 59,
+      "samples": 16,
+      "original_bytes": 317232,
+      "packed_bytes": 105276,
+      "encode_seconds": 0.010984084103256464,
+      "decode_seconds": 0.0028233329067006707
+    },
+    {
+      "chunk": 60,
+      "samples": 16,
+      "original_bytes": 341043,
+      "packed_bytes": 113218,
+      "encode_seconds": 0.011978833004832268,
+      "decode_seconds": 0.0030164580093696713
+    },
+    {
+      "chunk": 61,
+      "samples": 16,
+      "original_bytes": 344263,
+      "packed_bytes": 114199,
+      "encode_seconds": 0.01197612495161593,
+      "decode_seconds": 0.002965583000332117
+    },
+    {
+      "chunk": 62,
+      "samples": 16,
+      "original_bytes": 319098,
+      "packed_bytes": 105683,
+      "encode_seconds": 0.010986500070430338,
+      "decode_seconds": 0.002826125011779368
+    },
+    {
+      "chunk": 63,
+      "samples": 16,
+      "original_bytes": 267236,
+      "packed_bytes": 89835,
+      "encode_seconds": 0.009011416928842664,
+      "decode_seconds": 0.0023540420224890113
+    },
+    {
+      "chunk": 64,
+      "samples": 16,
+      "original_bytes": 326124,
+      "packed_bytes": 108397,
+      "encode_seconds": 0.01113483402878046,
+      "decode_seconds": 0.0027303328970447183
+    },
+    {
+      "chunk": 65,
+      "samples": 16,
+      "original_bytes": 304906,
+      "packed_bytes": 101136,
+      "encode_seconds": 0.010466875042766333,
+      "decode_seconds": 0.002860874985344708
+    },
+    {
+      "chunk": 66,
+      "samples": 16,
+      "original_bytes": 309022,
+      "packed_bytes": 102068,
+      "encode_seconds": 0.010950000025331974,
+      "decode_seconds": 0.0028707500314339995
+    },
+    {
+      "chunk": 67,
+      "samples": 16,
+      "original_bytes": 293265,
+      "packed_bytes": 96929,
+      "encode_seconds": 0.010472332942299545,
+      "decode_seconds": 0.002752208965830505
+    },
+    {
+      "chunk": 68,
+      "samples": 16,
+      "original_bytes": 317396,
+      "packed_bytes": 105074,
+      "encode_seconds": 0.011149458005093038,
+      "decode_seconds": 0.0028354580281302333
+    },
+    {
+      "chunk": 69,
+      "samples": 16,
+      "original_bytes": 296854,
+      "packed_bytes": 98540,
+      "encode_seconds": 0.010724666062742472,
+      "decode_seconds": 0.002738500013947487
+    },
+    {
+      "chunk": 70,
+      "samples": 16,
+      "original_bytes": 315324,
+      "packed_bytes": 104634,
+      "encode_seconds": 0.011449667043052614,
+      "decode_seconds": 0.0027310409350320697
+    },
+    {
+      "chunk": 71,
+      "samples": 16,
+      "original_bytes": 303840,
+      "packed_bytes": 100958,
+      "encode_seconds": 0.010659459047019482,
+      "decode_seconds": 0.0026746660005301237
+    },
+    {
+      "chunk": 72,
+      "samples": 16,
+      "original_bytes": 312022,
+      "packed_bytes": 103658,
+      "encode_seconds": 0.010987624991685152,
+      "decode_seconds": 0.002780916984193027
+    },
+    {
+      "chunk": 73,
+      "samples": 16,
+      "original_bytes": 300530,
+      "packed_bytes": 100123,
+      "encode_seconds": 0.010335874976590276,
+      "decode_seconds": 0.0024802080588415265
+    },
+    {
+      "chunk": 74,
+      "samples": 16,
+      "original_bytes": 328597,
+      "packed_bytes": 108709,
+      "encode_seconds": 0.011216999962925911,
+      "decode_seconds": 0.0028738749679178
+    },
+    {
+      "chunk": 75,
+      "samples": 16,
+      "original_bytes": 339667,
+      "packed_bytes": 112057,
+      "encode_seconds": 0.011637707939371467,
+      "decode_seconds": 0.0029712090035900474
+    },
+    {
+      "chunk": 76,
+      "samples": 16,
+      "original_bytes": 327307,
+      "packed_bytes": 108532,
+      "encode_seconds": 0.011238915962167084,
+      "decode_seconds": 0.002885333960875869
+    },
+    {
+      "chunk": 77,
+      "samples": 16,
+      "original_bytes": 315464,
+      "packed_bytes": 105287,
+      "encode_seconds": 0.010801207972690463,
+      "decode_seconds": 0.002904375083744526
+    },
+    {
+      "chunk": 78,
+      "samples": 16,
+      "original_bytes": 330664,
+      "packed_bytes": 109328,
+      "encode_seconds": 0.011235415935516357,
+      "decode_seconds": 0.0029362920904532075
+    },
+    {
+      "chunk": 79,
+      "samples": 16,
+      "original_bytes": 313356,
+      "packed_bytes": 103647,
+      "encode_seconds": 0.010507000028155744,
+      "decode_seconds": 0.002633000025525689
+    },
+    {
+      "chunk": 80,
+      "samples": 16,
+      "original_bytes": 308644,
+      "packed_bytes": 101895,
+      "encode_seconds": 0.010439082980155945,
+      "decode_seconds": 0.00271012494340539
+    },
+    {
+      "chunk": 81,
+      "samples": 16,
+      "original_bytes": 325301,
+      "packed_bytes": 107481,
+      "encode_seconds": 0.011116291978396475,
+      "decode_seconds": 0.0028198329964652658
+    },
+    {
+      "chunk": 82,
+      "samples": 16,
+      "original_bytes": 275054,
+      "packed_bytes": 92156,
+      "encode_seconds": 0.0094607500359416,
+      "decode_seconds": 0.002362874918617308
+    },
+    {
+      "chunk": 83,
+      "samples": 16,
+      "original_bytes": 302121,
+      "packed_bytes": 99967,
+      "encode_seconds": 0.01016020798124373,
+      "decode_seconds": 0.0026064999401569366
+    },
+    {
+      "chunk": 84,
+      "samples": 16,
+      "original_bytes": 316143,
+      "packed_bytes": 104996,
+      "encode_seconds": 0.010845249984413385,
+      "decode_seconds": 0.0029663749737665057
+    },
+    {
+      "chunk": 85,
+      "samples": 16,
+      "original_bytes": 329653,
+      "packed_bytes": 109134,
+      "encode_seconds": 0.011381000047549605,
+      "decode_seconds": 0.0029080420499667525
+    },
+    {
+      "chunk": 86,
+      "samples": 16,
+      "original_bytes": 324589,
+      "packed_bytes": 107052,
+      "encode_seconds": 0.011177208041772246,
+      "decode_seconds": 0.002796499989926815
+    },
+    {
+      "chunk": 87,
+      "samples": 16,
+      "original_bytes": 337398,
+      "packed_bytes": 111732,
+      "encode_seconds": 0.011614166898652911,
+      "decode_seconds": 0.003097917069680989
+    },
+    {
+      "chunk": 88,
+      "samples": 16,
+      "original_bytes": 310055,
+      "packed_bytes": 102602,
+      "encode_seconds": 0.010559665970504284,
+      "decode_seconds": 0.0026592500507831573
+    },
+    {
+      "chunk": 89,
+      "samples": 16,
+      "original_bytes": 333971,
+      "packed_bytes": 110483,
+      "encode_seconds": 0.01131866592913866,
+      "decode_seconds": 0.0029136670054867864
+    },
+    {
+      "chunk": 90,
+      "samples": 16,
+      "original_bytes": 299528,
+      "packed_bytes": 99406,
+      "encode_seconds": 0.01024037494789809,
+      "decode_seconds": 0.0026861660880967975
+    },
+    {
+      "chunk": 91,
+      "samples": 16,
+      "original_bytes": 302496,
+      "packed_bytes": 99890,
+      "encode_seconds": 0.010697290999814868,
+      "decode_seconds": 0.002982750069350004
+    },
+    {
+      "chunk": 92,
+      "samples": 16,
+      "original_bytes": 287562,
+      "packed_bytes": 95656,
+      "encode_seconds": 0.010865000076591969,
+      "decode_seconds": 0.0026663329917937517
+    },
+    {
+      "chunk": 93,
+      "samples": 16,
+      "original_bytes": 322913,
+      "packed_bytes": 106885,
+      "encode_seconds": 0.012092209071852267,
+      "decode_seconds": 0.003058083006180823
+    },
+    {
+      "chunk": 94,
+      "samples": 16,
+      "original_bytes": 347417,
+      "packed_bytes": 114609,
+      "encode_seconds": 0.013350666966289282,
+      "decode_seconds": 0.0032709171064198017
+    },
+    {
+      "chunk": 95,
+      "samples": 16,
+      "original_bytes": 290312,
+      "packed_bytes": 97437,
+      "encode_seconds": 0.010324375005438924,
+      "decode_seconds": 0.0027042089495807886
+    },
+    {
+      "chunk": 96,
+      "samples": 16,
+      "original_bytes": 348562,
+      "packed_bytes": 115345,
+      "encode_seconds": 0.012094749952666461,
+      "decode_seconds": 0.003044750075787306
+    },
+    {
+      "chunk": 97,
+      "samples": 16,
+      "original_bytes": 334237,
+      "packed_bytes": 110662,
+      "encode_seconds": 0.011644541984423995,
+      "decode_seconds": 0.0029448330169543624
+    },
+    {
+      "chunk": 98,
+      "samples": 16,
+      "original_bytes": 330662,
+      "packed_bytes": 109711,
+      "encode_seconds": 0.011753084021620452,
+      "decode_seconds": 0.002999665914103389
+    },
+    {
+      "chunk": 99,
+      "samples": 16,
+      "original_bytes": 345124,
+      "packed_bytes": 114081,
+      "encode_seconds": 0.012203500024043024,
+      "decode_seconds": 0.003200042061507702
+    },
+    {
+      "chunk": 100,
+      "samples": 16,
+      "original_bytes": 361048,
+      "packed_bytes": 119063,
+      "encode_seconds": 0.012511583045125008,
+      "decode_seconds": 0.003948583034798503
+    },
+    {
+      "chunk": 101,
+      "samples": 16,
+      "original_bytes": 327717,
+      "packed_bytes": 108544,
+      "encode_seconds": 0.01131354202516377,
+      "decode_seconds": 0.0030320000369101763
+    },
+    {
+      "chunk": 102,
+      "samples": 16,
+      "original_bytes": 330686,
+      "packed_bytes": 109332,
+      "encode_seconds": 0.011236084043048322,
+      "decode_seconds": 0.003005499951541424
+    },
+    {
+      "chunk": 103,
+      "samples": 16,
+      "original_bytes": 288192,
+      "packed_bytes": 96188,
+      "encode_seconds": 0.009828791953623295,
+      "decode_seconds": 0.0024224999360740185
+    },
+    {
+      "chunk": 104,
+      "samples": 16,
+      "original_bytes": 317729,
+      "packed_bytes": 105158,
+      "encode_seconds": 0.011020833044312894,
+      "decode_seconds": 0.0028777079423889518
+    },
+    {
+      "chunk": 105,
+      "samples": 16,
+      "original_bytes": 304008,
+      "packed_bytes": 101013,
+      "encode_seconds": 0.010371625074185431,
+      "decode_seconds": 0.0026358749018982053
+    },
+    {
+      "chunk": 106,
+      "samples": 16,
+      "original_bytes": 300904,
+      "packed_bytes": 99774,
+      "encode_seconds": 0.010550332954153419,
+      "decode_seconds": 0.0026152919745072722
+    },
+    {
+      "chunk": 107,
+      "samples": 16,
+      "original_bytes": 306774,
+      "packed_bytes": 101566,
+      "encode_seconds": 0.01050770899746567,
+      "decode_seconds": 0.002714000060223043
+    },
+    {
+      "chunk": 108,
+      "samples": 16,
+      "original_bytes": 315965,
+      "packed_bytes": 105017,
+      "encode_seconds": 0.011095082969404757,
+      "decode_seconds": 0.0028347920160740614
+    },
+    {
+      "chunk": 109,
+      "samples": 16,
+      "original_bytes": 325639,
+      "packed_bytes": 108332,
+      "encode_seconds": 0.011408791993744671,
+      "decode_seconds": 0.0027842079289257526
+    },
+    {
+      "chunk": 110,
+      "samples": 16,
+      "original_bytes": 304042,
+      "packed_bytes": 101093,
+      "encode_seconds": 0.01061699993442744,
+      "decode_seconds": 0.002691709087230265
+    },
+    {
+      "chunk": 111,
+      "samples": 16,
+      "original_bytes": 290860,
+      "packed_bytes": 97003,
+      "encode_seconds": 0.010037750005722046,
+      "decode_seconds": 0.002529666991904378
+    },
+    {
+      "chunk": 112,
+      "samples": 16,
+      "original_bytes": 310943,
+      "packed_bytes": 103254,
+      "encode_seconds": 0.010922792018391192,
+      "decode_seconds": 0.0026910409796983004
+    },
+    {
+      "chunk": 113,
+      "samples": 16,
+      "original_bytes": 327670,
+      "packed_bytes": 108336,
+      "encode_seconds": 0.011160082998685539,
+      "decode_seconds": 0.002854791935533285
+    },
+    {
+      "chunk": 114,
+      "samples": 16,
+      "original_bytes": 310616,
+      "packed_bytes": 102971,
+      "encode_seconds": 0.010733834002166986,
+      "decode_seconds": 0.00284212501719594
+    },
+    {
+      "chunk": 115,
+      "samples": 16,
+      "original_bytes": 328736,
+      "packed_bytes": 108825,
+      "encode_seconds": 0.01102304202504456,
+      "decode_seconds": 0.0028072920395061374
+    },
+    {
+      "chunk": 116,
+      "samples": 16,
+      "original_bytes": 309119,
+      "packed_bytes": 102383,
+      "encode_seconds": 0.010631291079334915,
+      "decode_seconds": 0.0025939999613910913
+    },
+    {
+      "chunk": 117,
+      "samples": 16,
+      "original_bytes": 283508,
+      "packed_bytes": 94217,
+      "encode_seconds": 0.009534500073641539,
+      "decode_seconds": 0.002496540895663202
+    },
+    {
+      "chunk": 118,
+      "samples": 16,
+      "original_bytes": 340603,
+      "packed_bytes": 112589,
+      "encode_seconds": 0.011774625047110021,
+      "decode_seconds": 0.0029558329842984676
+    },
+    {
+      "chunk": 119,
+      "samples": 16,
+      "original_bytes": 305870,
+      "packed_bytes": 101375,
+      "encode_seconds": 0.01076991599984467,
+      "decode_seconds": 0.00287170906085521
+    },
+    {
+      "chunk": 120,
+      "samples": 16,
+      "original_bytes": 311922,
+      "packed_bytes": 103566,
+      "encode_seconds": 0.010670999996364117,
+      "decode_seconds": 0.002806709031574428
+    },
+    {
+      "chunk": 121,
+      "samples": 16,
+      "original_bytes": 320729,
+      "packed_bytes": 106495,
+      "encode_seconds": 0.011007958906702697,
+      "decode_seconds": 0.002709541004151106
+    },
+    {
+      "chunk": 122,
+      "samples": 16,
+      "original_bytes": 346387,
+      "packed_bytes": 114937,
+      "encode_seconds": 0.011781167006120086,
+      "decode_seconds": 0.003006832906976342
+    },
+    {
+      "chunk": 123,
+      "samples": 16,
+      "original_bytes": 318913,
+      "packed_bytes": 105609,
+      "encode_seconds": 0.010947749949991703,
+      "decode_seconds": 0.002772584091871977
+    },
+    {
+      "chunk": 124,
+      "samples": 16,
+      "original_bytes": 300483,
+      "packed_bytes": 99726,
+      "encode_seconds": 0.010416916920803487,
+      "decode_seconds": 0.002737874980084598
+    },
+    {
+      "chunk": 125,
+      "samples": 16,
+      "original_bytes": 327640,
+      "packed_bytes": 108405,
+      "encode_seconds": 0.011357166920788586,
+      "decode_seconds": 0.0029142909916117787
+    },
+    {
+      "chunk": 126,
+      "samples": 16,
+      "original_bytes": 327291,
+      "packed_bytes": 108924,
+      "encode_seconds": 0.011295082978904247,
+      "decode_seconds": 0.0030876670498400927
+    },
+    {
+      "chunk": 127,
+      "samples": 16,
+      "original_bytes": 340348,
+      "packed_bytes": 113091,
+      "encode_seconds": 0.01183500001206994,
+      "decode_seconds": 0.0030656669987365603
+    }
+  ]
+}
