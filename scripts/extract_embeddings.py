@@ -38,6 +38,10 @@ def utc():
     return datetime.now(timezone.utc).isoformat()
 
 
+def terminate_requested(signum, frame):
+    raise SystemExit(128 + signum)
+
+
 @contextmanager
 def exclusive(path, blocking=True):
     with open(path, "a") as handle:
@@ -47,6 +51,17 @@ def exclusive(path, blocking=True):
 
 def emit(event, **fields):
     print(json.dumps(dict(time=utc(), event=event, pid=os.getpid(), **fields)), flush=True)
+
+
+def spool_size(directory):
+    total = 0
+    for path in directory.glob("*.zip"):
+        try:
+            total += path.stat().st_size
+        except FileNotFoundError:
+            # A GPU may finish and unlink its committed input after globbing.
+            continue
+    return total
 
 
 def prepare(args):
@@ -178,7 +193,7 @@ def cpu_producer(args, meta):
             initializer=init_cpu, initargs=(str(args.grover_source),)) as pool:
         futures, cursor, completed, total_samples = {}, 0, 0, 0
         while cursor < len(pending) or futures:
-            spool_bytes = sum(p.stat().st_size for p in (root / "graph-spool").glob("*.zip"))
+            spool_bytes = spool_size(root / "graph-spool")
             while cursor < len(pending) and len(futures) < args.cpu_workers * 2 and spool_bytes < args.spool_gb * 10**9:
                 name = pending[cursor]
                 futures[pool.submit(build_shard, (str(root), name, args.grover_batch))] = name
@@ -342,6 +357,7 @@ def finalize_model(args, meta, model):
 
 
 def main():
+    signal.signal(signal.SIGTERM, terminate_requested)
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("fasta", "output", "grover-source", "esm-checkpoint", "grover-checkpoint"):
         parser.add_argument("--"+name, type=Path, required=True)
@@ -382,12 +398,12 @@ def main():
         ctx = mp.get_context("spawn")
         processes = [ctx.Process(target=cpu_producer, args=(args, meta))]
         processes += [ctx.Process(target=gpu_worker, args=(args, meta, gpu)) for gpu in range(args.gpus)]
-        for process in processes:
-            process.start()
         finalizers = ThreadPoolExecutor(2)
         finalized = {}
         previous_ticks = None
         try:
+            for process in processes:
+                process.start()
             while any(p.is_alive() for p in processes):
                 failed = [p for p in processes if p.exitcode not in (None, 0)]
                 if failed:
@@ -438,7 +454,15 @@ def main():
                     except ProcessLookupError:
                         p.terminate()
             for p in processes:
-                p.join()
+                if p.pid is not None:
+                    p.join(timeout=10)
+                    # Also reap a pool child born during producer termination.
+                    try:
+                        os.killpg(p.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        if p.is_alive():
+                            p.kill()
+                    p.join()
             raise
         finally:
             finalizers.shutdown(wait=True)
