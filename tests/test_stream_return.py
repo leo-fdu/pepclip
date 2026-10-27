@@ -16,6 +16,18 @@ spec.loader.exec_module(stream)
 
 
 class StreamReturnTests(unittest.TestCase):
+    def test_file_partition_supports_four_and_eight_disjoint_balanced_flows(self):
+        files=[f"{m}/chunks/{i:06d}.f32" for m in stream.MODELS for i in range(8)]
+        sizes={f:(40 if f.startswith("esm2/") else 25) for f in files}
+        for connections in (1,2,4,8):
+            groups=stream.partition_transfer_files(files,connections,sizes)
+            flat=[f for group in groups for f in group]
+            self.assertEqual(len(groups),connections)
+            self.assertCountEqual(flat,files)
+            self.assertEqual(len(flat),len(set(flat)))
+            loads=[sum(sizes[f] for f in group) for group in groups]
+            self.assertLessEqual(max(loads)-min(loads),max(sizes.values()))
+
     def test_parallel_transfer_flows_keep_outputs_and_exit_codes_separate(self):
         commands=[[sys.executable,"-c","print('flow-one')"],
                   [sys.executable,"-c","print('flow-two'); raise SystemExit(3)"]]

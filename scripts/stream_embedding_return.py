@@ -128,6 +128,19 @@ def transfer_worker(command, password, connection):
         connection.close()
 
 
+def partition_transfer_files(files, connections, sizes):
+    """Assign each file to one flow, balancing expected bytes across flows."""
+    if connections < 1 or len(files) != len(set(files)):
+        raise ValueError("Require positive connections and unique transfer paths")
+    groups=[[] for _ in range(min(connections,len(files)))]
+    loads=[0]*len(groups)
+    for name in sorted(files,key=lambda f:(-sizes.get(f,1),f)):
+        index=min(range(len(groups)),key=lambda i:(loads[i],i))
+        groups[index].append(name)
+        loads[index]+=sizes.get(name,1)
+    return groups
+
+
 def transfer_commands(commands,password):
     """Independent password-authenticated flows; credentials use only IPC/RAM."""
     if len(commands)==1:
@@ -218,13 +231,17 @@ def receive(args):
             needed=sum(r["count"]*manifest["models"][m]["shape"][1]*4 for m in MODELS for r in selected[m])
             if shutil.disk_usage(root).free<2*needed+5*10**9:
                 raise RuntimeError("Insufficient disk space for transfer plus assembled rows")
-            groups=([files] if args.connections==1 else
-                    [[f for f in files if not f.startswith("grover/")],
-                     [f for f in files if f.startswith("grover/")]])
+            sizes={f"{m}/chunks/{r['name']}.f32":r["count"]*manifest["models"][m]["shape"][1]*4
+                   for m in MODELS for r in selected[m]}
+            cached_before=sum(min((cache/name).stat().st_size,size) for name,size in sizes.items()
+                              if (cache/name).exists())
+            groups=partition_transfer_files(files,args.connections,sizes)
             listings,commands=[],[]
             for group in groups:
                 if not group:
                     continue
+                for name in group:
+                    (cache/name).parent.mkdir(parents=True,exist_ok=True)
                 with tempfile.NamedTemporaryFile(mode="w",prefix="transfer-list-",dir=cache,delete=False) as handle:
                     handle.write("\n".join(group)+"\n")
                     listing=Path(handle.name)
@@ -232,7 +249,9 @@ def receive(args):
                 commands.append(["rsync","-rtz","--partial","--inplace","--timeout=300","--files-from",str(listing),
                          "-e",shlex.join(ssh),f"{host}:{args.remote_staging}/",str(cache)+"/"])
             try:
+                transfer_started=time.monotonic()
                 results=transfer_commands(commands,password)
+                transfer_seconds=time.monotonic()-transfer_started
             finally:
                 for listing in listings:
                     listing.unlink(missing_ok=True)
@@ -241,6 +260,12 @@ def receive(args):
                 print(now(),"transfer_retry",failed,flush=True)
                 time.sleep(args.poll_seconds)
                 continue
+            transfer_stats=dict(time=now(),connections=len(commands),embedding_bytes=needed,
+                cached_bytes_before=cached_before,seconds=transfer_seconds,
+                effective_payload_MB_s=needed/transfer_seconds/1e6)
+            with (root/"transfer-history.jsonl").open("a") as handle:
+                handle.write(json.dumps(transfer_stats)+"\n")
+            print(now(),"transfer_batch",transfer_stats,flush=True)
         if not (root/"ids.json").exists() and (cache/"ids.json").exists():
             if sha256(cache/"ids.json")!=manifest["ids_sha256"]:
                 (cache/"ids.json").unlink()
@@ -289,7 +314,7 @@ def main():
     local.add_argument("--output",type=Path,required=True)
     local.add_argument("--poll-seconds",type=int,default=120)
     local.add_argument("--chunks-per-model",type=int,default=8)
-    local.add_argument("--connections",type=int,choices=[1,2],default=2)
+    local.add_argument("--connections",type=int,choices=range(1,17),default=2)
     args=p.parse_args()
     if args.poll_seconds<1 or (args.mode=="receive" and args.chunks_per_model<1):
         raise ValueError("Intervals/chunk limits must be positive")

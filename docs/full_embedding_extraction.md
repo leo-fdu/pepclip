@@ -153,12 +153,19 @@ until both final local hashes pass. Both original and streamed return paths
 passed the real 512-sample ESM3B/GROVER test, including exact final NPY SHA256
 matches. A standard-library test checks out-of-order assembly, resumption,
 unchanged headers and rejection of a different source run.
-Two independent rsync connections are used by default (one per modality).
-Their passwords are passed through local process IPC and stay in memory;
-files and model outputs do not overlap. Use `--connections 1` if a second flow
-does not improve the actual network path. A real 512-sample two-connection
-return also matched both original full NPY hashes. A local PTY/process test
-checks independent outputs and propagation of nonzero transfer exit codes.
+The receiver supports `--connections 1` through `--connections 16`, default 2.
+Files are assigned once across flows, balancing expected embedding byte counts;
+each flow can carry shards from either model. Passwords use local IPC and stay
+in memory. Choose concurrency from measured throughput on the current network.
+Real 512-sample two-connection and eight-connection returns matched both
+original full NPY hashes. Local tests cover 1/2/4/8-flow assignment, independent
+PTY/process outputs and propagation of nonzero transfer exit codes.
+
+`transfer-history.jsonl` records connection counts, selected embedding bytes,
+already-cached bytes and transfer wall time per batch. Exclude resumed batches
+with nonzero `cached_bytes_before` when comparing fresh-download throughput;
+their effective payload rate includes reused local bytes. Temporary fragment
+files remain embedding bytes, are verified before assembly and are then removed.
 
 The live graph workers were reniced from 0 to 5 to prioritize GPU launch/decode
 threads while retaining all 40 producers; the operation is recorded in cloud
