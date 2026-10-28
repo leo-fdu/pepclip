@@ -5,6 +5,7 @@ import platform
 from pathlib import Path
 import random
 import subprocess
+import time
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, Sampler
@@ -165,9 +166,12 @@ def model_from_checkpoint(checkpoint, device="cpu"):
 
 def train(manifest, cache_a, cache_b, output, config, resume=None):
     config.validate()
+    print(json.dumps(dict(event="loading_inputs", low_memory=config.low_memory)), flush=True)
     rows, a, b, provenance = load_inputs(manifest, cache_a, cache_b, config)
     training = PairedFeatures(rows, a, b, "train")
     validation = PairedFeatures(rows, a, b, "val")
+    print(json.dumps(dict(event="inputs_ready", train_samples=len(training),
+                          val_samples=len(validation))), flush=True)
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     torch.manual_seed(config.seed)
@@ -225,11 +229,12 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
     for epoch in range(start, config.epochs):
         model.train()
         total, count = 0., 0
+        epoch_started = time.monotonic()
         sampler = BufferedBatches if config.low_memory else ContrastiveBatches
         extra = dict(buffer_size=config.shuffle_buffer) if config.low_memory else {}
         loader = DataLoader(training, batch_sampler=sampler(
             len(training), config.batch_size, config.seed + epoch, **extra), num_workers=0)
-        for a, b in loader:
+        for step, (a, b) in enumerate(loader, 1):
             optimizer.zero_grad(set_to_none=True)
             z_a, z_b = model(a.to(config.device), b.to(config.device))
             loss = clip_loss(z_a, z_b, model.loss_temperature(config.temperature))
@@ -240,6 +245,10 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
             model.clamp_temperature()
             total += loss.item() * len(a)
             count += len(a)
+            if step == 1 or step % 1000 == 0:
+                print(json.dumps(dict(event="training_progress", epoch=epoch+1, step=step,
+                    samples=count, train_samples=len(training), mean_loss=total/count,
+                    elapsed_seconds=round(time.monotonic()-epoch_started, 1))), flush=True)
         metrics = evaluate(model, validation, config.device, config.validation_batch_size,
                            config.temperature, config.validation_mode)
         if not math.isfinite(metrics["loss"]):

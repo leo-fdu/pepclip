@@ -240,3 +240,41 @@ AdamW and a separate best-model copy, `last.pt` is about 977 MiB. Twenty epochs
 with snapshots every five epochs retain about 2.15 GiB in total; allow at least
 4 GiB for checkpoint files and atomic-save temporary files, excluding inputs,
 SQLite indexes and normal system free-space headroom.
+
+### Current full-dataset split (85% train / 15% validation)
+
+The requested no-test baseline uses seed 42 and a 0.15 hash threshold for
+validation; all other samples go to training. Proportions are approximate, not
+forced exact counts. Generate the manifest without copying features:
+
+```bash
+PYTHONPATH=src python scripts/split_embedding_pairs.py \
+  --fasta data/processed/uniref90-sequences-20261026/peptides.fasta \
+  --embedding-a embeddings/uniref90-esm3b-grover-base-20261027/esm2 \
+  --embedding-b embeddings/uniref90-esm3b-grover-base-20261027/grover \
+  --output data/processed/uniref90-pairs-85-15-seed42-20261028 \
+  --seed 42 --val-fraction 0.15
+```
+
+This command verifies the FASTA hash against extraction provenance, checks both
+ID-file hashes/order/counts, and rejects duplicate IDs or exact sequences using
+a disk-backed SQLite audit. It writes a new `pairs.jsonl` and completion
+`metadata.json`; existing destinations are refused. Exact sequence SHA256 is
+recorded as `identity_id`. It does not rehash the large feature arrays (training
+startup does); it is not a homology-cluster split. Large generated manifests
+remain under ignored `data/processed/`; a small result record is versioned in
+`docs/data/`.
+
+After successful preparation, the formal command is:
+
+```bash
+pepclip train \
+  --pairs data/processed/uniref90-pairs-85-15-seed42-20261028/pairs.jsonl \
+  --embedding-a embeddings/uniref90-esm3b-grover-base-20261027/esm2 \
+  --embedding-b embeddings/uniref90-esm3b-grover-base-20261027/grover \
+  --config configs/precomputed_mps_low_memory.json \
+  --output outputs/mps-85-15-b512-20epochs
+```
+
+The output directory must not already exist. This reserves validation for model
+selection; no independent test-set performance can be reported from this split.

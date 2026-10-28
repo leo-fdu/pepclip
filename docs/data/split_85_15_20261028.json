@@ -1,0 +1,41 @@
+{
+  "status": "complete",
+  "seed": 42,
+  "train_fraction": 0.85,
+  "val_fraction": 0.15,
+  "test_fraction": 0,
+  "counts": {
+    "train": 10306395,
+    "val": 1817773,
+    "test": 0
+  },
+  "split_policy": "SHA256 JSON [seed, sample_id]; val below threshold, otherwise train; approximate proportions",
+  "identity_policy": "exact sequence uniqueness audited in SQLite; identity_id is sequence SHA256",
+  "similarity_policy": "no homology clustering; not a strict low-homology split",
+  "fasta_sha256": "dac764132448f462a09c2eef807797464e1d01757fbacfca3c1a876c14aea8d2",
+  "ids_sha256": "94d78cb3be46ff387dd77248453eb6373da89858ab0cd19d84471bc8ac3f4189",
+  "pairs_sha256": "f2d5480d91848755431659a16b7acdc041fb2f8e73bc3ccfe47719047b823faa",
+  "features_sha256": [
+    "b04ddb25fd88bb0e549b289941e912824bb0d38f3cfea39d81ea535f7ff7df20",
+    "903336d6bf16045bd9e6788dab5f316affa7767498d2b7e2dacd7d9e380e2c87"
+  ],
+  "features_validation": "metadata hashes recorded; feature bytes not rehashed by this split command",
+  "real_feature_preflight": {
+    "kind": "real-feature-smoke-not-formal-training",
+    "train_samples": 1536,
+    "val_samples": 256,
+    "batch": 512,
+    "losses": [
+      6.241707801818848,
+      6.198815822601318,
+      6.7615766525268555
+    ],
+    "val_loss": 5.407397747039795,
+    "temperature": 0.07001787424087524,
+    "finite_gradients": true,
+    "driver_GiB": 2.351715087890625
+  },
+  "pairs_path": "data/processed/uniref90-pairs-85-15-seed42-20261028/pairs.jsonl",
+  "formal_training_config": "configs/precomputed_mps_low_memory.json",
+  "formal_training_status_at_record": "not started; split and smoke complete"
+}
