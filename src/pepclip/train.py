@@ -29,6 +29,8 @@ class TrainConfig:
     shuffle_buffer: int = 65536
     projection_dim: int = 256
     temperature: float = 0.07
+    learnable_temperature: int = 0
+    save_every: int = 0  # optional weights-only epoch snapshots
     batch_size: int = 256
     validation_batch_size: int = 256
     validation_mode: str = "batch"
@@ -39,6 +41,12 @@ class TrainConfig:
     device: str = "cpu"
 
     def validate(self):
+        if type(self.learnable_temperature) is not int or self.learnable_temperature not in (0, 1):
+            raise ValueError("Invalid learnable_temperature")
+        if self.learnable_temperature and not 0.01 <= self.temperature <= 1.0:
+            raise ValueError("Learnable initial temperature must be in [0.01, 1]")
+        if type(self.save_every) is not int or self.save_every < 0:
+            raise ValueError("Invalid save_every")
         for key in ("hidden_dim_a", "hidden_dim_b"):
             if type(getattr(self, key)) is not int or getattr(self, key) < 0:
                 raise ValueError(f"Invalid {key}")
@@ -168,9 +176,14 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
     torch.use_deterministic_algorithms(True)
     args = dict(input_dim_a=a.output_dim, input_dim_b=b.output_dim,
                 hidden_dim=config.hidden_dim, projection_dim=config.projection_dim,
-                hidden_dim_a=config.hidden_dim_a, hidden_dim_b=config.hidden_dim_b)
+                hidden_dim_a=config.hidden_dim_a, hidden_dim_b=config.hidden_dim_b,
+                learnable_temperature=config.learnable_temperature, temperature=config.temperature)
     model = EmbeddingCLIP(**args).to(config.device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate,
+    parameters = model.parameters()
+    if config.learnable_temperature:
+        parameters = [dict(params=[p for n, p in model.named_parameters() if n != "logit_scale"]),
+                      dict(params=[model.logit_scale], weight_decay=0.0)]
+    optimizer = torch.optim.AdamW(parameters, lr=config.learning_rate,
                                   weight_decay=config.weight_decay)
     start, best = 0, math.inf
     if resume:
@@ -181,7 +194,7 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
             previous_config.update(validation_mode="retrieval",
                                    validation_batch_size=previous_config["batch_size"])
         for key, value in asdict(config).items():
-            if key not in {"epochs", "device", "index_dir"} and previous_config[key] != value:
+            if key not in {"epochs", "device", "index_dir", "save_every"} and previous_config[key] != value:
                 raise ValueError(f"Resume config changed: {key}")
         if checkpoint["provenance"] != provenance:
             raise ValueError("Resume data/encoder provenance mismatch")
@@ -219,11 +232,12 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
         for a, b in loader:
             optimizer.zero_grad(set_to_none=True)
             z_a, z_b = model(a.to(config.device), b.to(config.device))
-            loss = clip_loss(z_a, z_b, config.temperature)
+            loss = clip_loss(z_a, z_b, model.loss_temperature(config.temperature))
             if not torch.isfinite(loss):
                 raise ValueError("Nonfinite training loss")
             loss.backward()
             optimizer.step()
+            model.clamp_temperature()
             total += loss.item() * len(a)
             count += len(a)
         metrics = evaluate(model, validation, config.device, config.validation_batch_size,
@@ -233,7 +247,8 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
         if metrics["loss"] < best:
             best = metrics["loss"]
             best_state = {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}
-        record = dict(epoch=epoch+1, train_loss=total/count, validation=metrics)
+        record = dict(epoch=epoch+1, train_loss=total/count, validation=metrics,
+                      temperature=float(torch.as_tensor(model.loss_temperature(config.temperature)).detach()))
         with (output / "metrics.jsonl").open("a") as handle:
             handle.write(json.dumps(record) + "\n")
         print(json.dumps(record), flush=True)
@@ -247,4 +262,10 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
         torch.save(dict(schema_version=2, model_args=args, config=asdict(config),
                         provenance=provenance, model=best_state), output / "best.pt.tmp")
         (output / "best.pt.tmp").replace(output / "best.pt")
+        if config.save_every and (epoch + 1) % config.save_every == 0:
+            filename = output / f"epoch_{epoch + 1:04d}.pt"
+            temporary = filename.with_suffix(".pt.tmp")
+            torch.save(dict(schema_version=2, model_args=args, config=asdict(config),
+                            provenance=provenance, epoch=epoch+1, model=model.state_dict()), temporary)
+            temporary.replace(filename)
     return output / "last.pt"

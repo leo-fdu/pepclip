@@ -52,6 +52,8 @@ def evaluate(model, dataset, device="cpu", batch_size=256, temperature=0.07, mod
     if mode == "retrieval" and getattr(dataset, "disk_rows", None) is not None:
         raise ValueError("low_memory inputs require batch evaluation; full retrieval accumulates all projections")
     model.eval()
+    if hasattr(model, "loss_temperature"):
+        temperature = float(model.loss_temperature(temperature))
     seq, graph, total, count, batches = [], [], 0.0, 0, 0
     min_size, max_size = None, 0
     loader = DataLoader(dataset, batch_sampler=validation_batches(len(dataset), batch_size))

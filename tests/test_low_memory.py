@@ -103,11 +103,16 @@ class LowMemoryTests(unittest.TestCase):
         self.assertTrue(all(p.grad is not None and torch.isfinite(p.grad).all() for p in model.parameters()))
         config = TrainConfig(hidden_dim_a=13, hidden_dim_b=9, projection_dim=3,
                              batch_size=3, validation_batch_size=2, low_memory=1,
-                             shuffle_buffer=5, epochs=2)
+                             shuffle_buffer=5, epochs=2, learnable_temperature=1, save_every=1)
         with contextlib.redirect_stdout(io.StringIO()):
             full = train(self.manifest, *self.paths, self.root / 'full', config)
             partial = train(self.manifest, *self.paths, self.root / 'partial', replace(config, epochs=1))
             resumed = train(self.manifest, *self.paths, self.root / 'resumed', config, partial)
+        self.assertTrue((self.root / 'full/epoch_0001.pt').exists())
+        snapshot = load_checkpoint(self.root / 'full/epoch_0001.pt')
+        self.assertNotIn('optimizer', snapshot)
+        self.assertEqual(snapshot['epoch'], 1)
+        self.assertTrue(hasattr(model_from_checkpoint(snapshot), 'logit_scale'))
         expected, actual = load_checkpoint(full), load_checkpoint(resumed)
         for key in expected['model']:
             torch.testing.assert_close(expected['model'][key], actual['model'][key], rtol=0, atol=0)
@@ -117,6 +122,29 @@ class LowMemoryTests(unittest.TestCase):
         restored = model_from_checkpoint(dict(model_args=dict(input_dim_a=4, input_dim_b=7,
                                              hidden_dim=8, projection_dim=3), model=old.state_dict()))
         torch.testing.assert_close(old(a, b)[0], restored(a, b)[0])
+
+    def test_temperature_gradient_bounds_and_evaluation(self):
+        from pepclip.evaluate import evaluate
+        from torch.utils.data import TensorDataset
+        model = EmbeddingCLIP(4, 7, hidden_dim=8, projection_dim=3,
+                              learnable_temperature=1, temperature=0.07)
+        self.assertAlmostEqual(float(model.loss_temperature().detach()), 0.07, places=6)
+        a, b = torch.randn(4, 4), torch.randn(4, 7)
+        loss = clip_loss(*model(a, b), model.loss_temperature())
+        loss.backward()
+        self.assertTrue(torch.isfinite(model.logit_scale.grad))
+        self.assertNotEqual(float(model.logit_scale.grad), 0)
+        with torch.no_grad():
+            model.logit_scale.fill_(100)
+        model.clamp_temperature()
+        self.assertAlmostEqual(float(model.loss_temperature().detach()), 0.01, places=6)
+        expected = clip_loss(*model(a, b), model.loss_temperature()).item()
+        actual = evaluate(model, TensorDataset(a, b), batch_size=4, temperature=0.5)
+        self.assertAlmostEqual(actual['loss'], expected, places=5)
+        with torch.no_grad():
+            model.logit_scale.fill_(-100)
+        model.clamp_temperature()
+        self.assertEqual(float(model.loss_temperature().detach()), 1.0)
 
     def test_low_memory_retrieval_rejected(self):
         with self.assertRaises(ValueError):

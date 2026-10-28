@@ -154,7 +154,7 @@ pepclip train --pairs PATH/pairs.jsonl \
 ```
 
 This opt-in config selects 8192/7200 hidden widths, 2048 output dimensions,
-FP32 training, batch 256 for training and validation, and `low_memory: 1`.
+FP32 training, batch 512 for training, batch 256 for validation, and `low_memory: 1`.
 For 2560/1600 input vectors it implements the requested architectures. The
 existing target-machine configs are unchanged. No backbone is loaded or trained.
 
@@ -197,7 +197,7 @@ retry or batch reduction, since that would silently change CLIP negatives.
 This reduces dataset-size-dependent RAM growth; it is **not an unconditional
 OOM guarantee**. GPU usage still depends on batch, widths, output dimension,
 optimizer state, and other processes sharing memory. Start with the supplied
-batch 256, close memory-heavy applications, and verify on real inputs before
+batch 512, close memory-heavy applications, and verify on real inputs before
 long runs. If necessary choose a smaller batch explicitly and start a new run;
 record the changed negative count. FP16 storage is supported and converted to
 FP32 per row (10 million 2560+1600 vectors: about 83.2 GB FP16 or 166.4 GB FP32,
@@ -208,3 +208,35 @@ constitute a ten-million-sample or sustained MPS validation.
 PYTHONPATH=src python -m unittest discover -s tests -p 'test_low_memory.py'
 PYTHONPATH=src python -m unittest discover -s tests -p 'test_embeddings.py'
 ```
+
+### Learnable temperature and intermediate weights
+
+`learnable_temperature: 1` optimizes `logit_scale = log(1 / temperature)`;
+`temperature` supplies its initial value (0.07 in the MPS preset). Effective
+logit scale is bounded to [1, 100], giving temperature [0.01, 1]; the parameter
+is clamped after each optimizer update. It uses the projection learning rate
+and zero weight decay. The default remains fixed temperature for older configs.
+Training, validation, checkpoint reload and standalone evaluation all use the
+learned value, which is also recorded per epoch in `metrics.jsonl`. Changing
+from fixed to learned temperature requires a new run. Validation loss now also
+reflects temperature calibration: a lower loss alone does not prove improved
+retrieval or downstream representations. Best-model selection still uses that
+validation loss.
+
+The MPS preset now uses batch 512, learning rate 1e-4, 20 epochs and
+`save_every: 5`. The hidden widths remain 8192/7200 and the output width 2048.
+`save_every` defaults to 0 (disabled). When enabled, `epoch_0005.pt`, etc. retain
+that epoch's **current** model and learned temperature for evaluation/inference;
+these snapshots do not contain optimizer state and cannot be used with
+`--resume`. `last.pt` remains the resumable latest state; `best.pt` remains the
+best validation-loss model. Per-epoch metrics are always retained.
+
+With the current constant learning rate and epoch-seeded sampler, a 20-epoch
+run includes the same first 5/10 epochs as otherwise identical runs stopped at
+5/10 epochs (subject to backend reproducibility). This would not necessarily
+hold if a future schedule depended on total epochs. The last model need not be
+the best model. For 2560/1600 inputs, FP32 weights are about 244.3 MiB; with
+AdamW and a separate best-model copy, `last.pt` is about 977 MiB. Twenty epochs
+with snapshots every five epochs retain about 2.15 GiB in total; allow at least
+4 GiB for checkpoint files and atomic-save temporary files, excluding inputs,
+SQLite indexes and normal system free-space headroom.
