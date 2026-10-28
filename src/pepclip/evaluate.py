@@ -49,9 +49,11 @@ def validation_batches(size, batch_size):
 def evaluate(model, dataset, device="cpu", batch_size=256, temperature=0.07, mode="batch"):
     if mode not in {"batch", "retrieval"}:
         raise ValueError("Evaluation mode must be batch or retrieval")
+    if mode == "retrieval" and getattr(dataset, "disk_rows", None) is not None:
+        raise ValueError("low_memory inputs require batch evaluation; full retrieval accumulates all projections")
     model.eval()
     seq, graph, total, count, batches = [], [], 0.0, 0, 0
-    sizes = []
+    min_size, max_size = None, 0
     loader = DataLoader(dataset, batch_sampler=validation_batches(len(dataset), batch_size))
     for a, b in loader:
         z_a, z_b = model(a.to(device), b.to(device))
@@ -62,12 +64,13 @@ def evaluate(model, dataset, device="cpu", batch_size=256, temperature=0.07, mod
             total += clip_loss(z_a, z_b, temperature).item() * len(a)
         count += len(a)
         batches += 1
-        sizes.append(len(a))
+        min_size = len(a) if min_size is None else min(min_size, len(a))
+        max_size = max(max_size, len(a))
     if mode == "retrieval":
         metrics = retrieval_metrics(torch.cat(seq), torch.cat(graph), temperature, batch_size)
         metrics["a_to_b"] = metrics.pop("sequence_to_graph")
         metrics["b_to_a"] = metrics.pop("graph_to_sequence")
         return dict(metrics, evaluation_mode=mode)
     return dict(loss=total / count, sample_count=count, batch_count=batches,
-                batch_size=batch_size, min_batch_size=min(sizes), max_batch_size=max(sizes),
+                batch_size=batch_size, min_batch_size=min_size, max_batch_size=max_size,
                 evaluation_mode=mode)

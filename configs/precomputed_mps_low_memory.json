@@ -1,0 +1,17 @@
+{
+  "hidden_dim_a": 8192,
+  "hidden_dim_b": 7200,
+  "projection_dim": 2048,
+  "temperature": 0.07,
+  "batch_size": 256,
+  "validation_batch_size": 256,
+  "validation_mode": "batch",
+  "epochs": 20,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "seed": 42,
+  "device": "mps",
+  "low_memory": 1,
+  "shuffle_buffer": 65536,
+  "index_dir": ""
+}

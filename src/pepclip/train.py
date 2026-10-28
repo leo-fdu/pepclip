@@ -22,6 +22,11 @@ class TrainConfig:
     protein_encoder: str = ""
     graph_encoder: str = ""
     hidden_dim: int = 512
+    hidden_dim_a: int = 0  # 0 inherits legacy hidden_dim
+    hidden_dim_b: int = 0
+    low_memory: int = 0  # schema-2 disk index and bounded shuffle
+    index_dir: str = ""  # temporary disk index parent; empty uses system temp
+    shuffle_buffer: int = 65536
     projection_dim: int = 256
     temperature: float = 0.07
     batch_size: int = 256
@@ -34,6 +39,14 @@ class TrainConfig:
     device: str = "cpu"
 
     def validate(self):
+        for key in ("hidden_dim_a", "hidden_dim_b"):
+            if type(getattr(self, key)) is not int or getattr(self, key) < 0:
+                raise ValueError(f"Invalid {key}")
+        if (type(self.low_memory) is not int or self.low_memory not in (0, 1) or
+                type(self.shuffle_buffer) is not int or self.shuffle_buffer < 2):
+            raise ValueError("Invalid low_memory/shuffle_buffer")
+        if self.low_memory and self.validation_mode != "batch":
+            raise ValueError("low_memory requires batch validation")
         for key in ("hidden_dim", "projection_dim", "batch_size", "validation_batch_size", "epochs"):
             value = getattr(self, key)
             if not isinstance(value, int) or value < (2 if key in {"batch_size", "validation_batch_size"} else 1):
@@ -54,15 +67,53 @@ class ContrastiveBatches(Sampler):
             raise ValueError("Need at least two contrastive samples")
 
     def __iter__(self):
-        order = torch.randperm(self.size, generator=torch.Generator().manual_seed(self.seed)).tolist()
-        batches = [order[i:i+self.batch_size] for i in range(0, self.size, self.batch_size)]
-        if len(batches) > 1 and len(batches[-1]) == 1:
-            batches[-2].extend(batches.pop())
-        return iter(batches)
+        order = torch.randperm(self.size, generator=torch.Generator().manual_seed(self.seed))
+        start = 0
+        while start < self.size:
+            end = min(start + self.batch_size, self.size)
+            if self.size - end == 1:
+                end = self.size
+            yield order[start:end].tolist()
+            start = end
 
     def __len__(self):
         n = math.ceil(self.size / self.batch_size)
         return n - int(n > 1 and self.size % self.batch_size == 1)
+
+
+class BufferedBatches(ContrastiveBatches):
+    """Bounded replacement-buffer shuffle, not a uniform global permutation."""
+    def __init__(self, size, batch_size, seed, buffer_size=65536):
+        super().__init__(size, batch_size, seed)
+        self.buffer_size = buffer_size
+
+    def __iter__(self):
+        rng = random.Random(self.seed)
+        buffer = list(range(min(self.size, self.buffer_size)))
+        batch = []
+        def indices():
+            for i in range(len(buffer), self.size):
+                j = rng.randrange(len(buffer))
+                yield buffer[j]
+                buffer[j] = i
+            rng.shuffle(buffer)
+            yield from buffer
+        # Hold one pending batch so a trailing singleton can be merged.
+        pending = None
+        for i in indices():
+            batch.append(i)
+            if len(batch) == self.batch_size:
+                if pending is not None:
+                    yield pending
+                pending, batch = batch, []
+        if pending is None:
+            yield batch
+        elif len(batch) == 1:
+            yield pending + batch
+        else:
+            yield pending
+            if batch:
+                yield batch
 
 
 def load_inputs(manifest, cache_a, cache_b, config):
@@ -72,12 +123,17 @@ def load_inputs(manifest, cache_a, cache_b, config):
         if config.protein_encoder or config.graph_encoder:
             raise ValueError("Schema-2 bundles declare their provenance; encoder-name flags are legacy-only")
         from .embeddings import EmbeddingCache
+        if config.low_memory:
+            from .disk_data import disk_inputs
+            return disk_inputs(manifest, cache_a, cache_b, config.index_dir)
         rows = load_pairs(manifest)
         a, b = EmbeddingCache(cache_a, rows), EmbeddingCache(cache_b, rows)
         provenance = dict(pairs_sha256=manifest_fingerprint(rows), a=a.metadata, b=b.metadata)
         return rows, a, b, provenance
     if schema_a != 1 or schema_b != 1:
         raise ValueError("Use two schema-2 bundles, or two legacy schema-1 peptide caches")
+    if config.low_memory:
+        raise ValueError("low_memory requires schema-2 embedding bundles")
     # Legacy extraction remains available without constraining generic inputs.
     rows = load_manifest(manifest)
     name_a = config.protein_encoder or json.loads((Path(cache_a) / "metadata.json").read_text())["encoder"]["encoder"]
@@ -111,20 +167,21 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
     np.random.seed(config.seed)
     torch.use_deterministic_algorithms(True)
     args = dict(input_dim_a=a.output_dim, input_dim_b=b.output_dim,
-                hidden_dim=config.hidden_dim, projection_dim=config.projection_dim)
+                hidden_dim=config.hidden_dim, projection_dim=config.projection_dim,
+                hidden_dim_a=config.hidden_dim_a, hidden_dim_b=config.hidden_dim_b)
     model = EmbeddingCLIP(**args).to(config.device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate,
                                   weight_decay=config.weight_decay)
     start, best = 0, math.inf
     if resume:
         checkpoint = load_checkpoint(resume)
-        previous_config = checkpoint["config"].copy()
-        if "validation_mode" not in previous_config:
+        previous_config = asdict(TrainConfig(**checkpoint["config"]))
+        if "validation_mode" not in checkpoint["config"]:
             # Old checkpoints selected best.pt using full-candidate retrieval loss.
             previous_config.update(validation_mode="retrieval",
                                    validation_batch_size=previous_config["batch_size"])
         for key, value in asdict(config).items():
-            if key not in {"epochs", "device"} and previous_config[key] != value:
+            if key not in {"epochs", "device", "index_dir"} and previous_config[key] != value:
                 raise ValueError(f"Resume config changed: {key}")
         if checkpoint["provenance"] != provenance:
             raise ValueError("Resume data/encoder provenance mismatch")
@@ -136,6 +193,7 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
             torch.cuda.set_rng_state_all(checkpoint["cuda_rng"])
         # Retain the best model even if this continuation never improves it.
         best_state = checkpoint["best_model"]
+        del checkpoint  # release CPU copies of restored model/optimizer tensors
     else:
         best_state = None
     if start >= config.epochs:
@@ -154,8 +212,10 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
     for epoch in range(start, config.epochs):
         model.train()
         total, count = 0., 0
-        loader = DataLoader(training, batch_sampler=ContrastiveBatches(
-            len(training), config.batch_size, config.seed + epoch))
+        sampler = BufferedBatches if config.low_memory else ContrastiveBatches
+        extra = dict(buffer_size=config.shuffle_buffer) if config.low_memory else {}
+        loader = DataLoader(training, batch_sampler=sampler(
+            len(training), config.batch_size, config.seed + epoch, **extra), num_workers=0)
         for a, b in loader:
             optimizer.zero_grad(set_to_none=True)
             z_a, z_b = model(a.to(config.device), b.to(config.device))

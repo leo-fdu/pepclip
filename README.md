@@ -134,3 +134,77 @@ Reference interfaces: [official ESM examples](https://github.com/facebookresearc
 Subsequent cloud validation: all six generic tensor tests passed with Python 3.10.12, PyTorch 2.6.0+cu124, and NumPy 2.2.6. Projection-only CUDA training was measured on an RTX 4090 across batches 2048–32768; see the [benchmark report](docs/benchmarks/20261026-rtx4090-projection.md). These synthetic warm-cache measurements do not validate pretrained encoder extraction or full-data I/O.
 
 Previously recorded local validation environment: Python 3.10.19, PyTorch 2.10.0, NumPy 2.2.6, and RDKit 2025.09.4; 14 unit tests passed. Adapter tests used stand-ins for upstream interfaces. These historical adapter tests used stand-ins; the separate real-encoder benchmark documents subsequent sample inference validation.
+
+### Independent projection widths and low-memory training
+
+`hidden_dim_a` and `hidden_dim_b` independently set the two MLP hidden widths
+(A = sequence, B = graph in the ESM/GROVER setup). A value of `0` inherits the
+legacy `hidden_dim`; old configs and checkpoints remain readable. Input dimensions
+are inferred from the bundles; `projection_dim` is shared. Both heads still use
+Linear → GELU → Linear and L2 normalization. CLI overrides are
+`--hidden-dim-a`, `--hidden-dim-b`, and `--projection-dim`.
+
+For the explicitly requested local MPS experiment, use:
+
+```bash
+pepclip train --pairs PATH/pairs.jsonl \
+  --embedding-a PATH/sequence_bundle --embedding-b PATH/graph_bundle \
+  --output outputs/mps_low_memory \
+  --config configs/precomputed_mps_low_memory.json
+```
+
+This opt-in config selects 8192/7200 hidden widths, 2048 output dimensions,
+FP32 training, batch 256 for training and validation, and `low_memory: 1`.
+For 2560/1600 input vectors it implements the requested architectures. The
+existing target-machine configs are unchanged. No backbone is loaded or trained.
+
+Low-memory mode currently requires **schema-2 bundles** and C-order `.npy`
+features. It streams the existing JSONL pair manifest and JSON ID arrays into a
+temporary SQLite index, enforcing duplicate/identity/group-split rules and
+checking bundle hashes and finite values. It preserves the normal manifest
+fingerprint, ID pairing, and sorted validation order. Indexes are rebuilt at
+startup (including resume); checks scan all input files before training. Allow
+startup time and disk space for the index. Set `index_dir` / `--index-dir` to an
+**existing disk directory** with ample free space, not a RAM filesystem; empty
+uses the system temporary directory. Source files are never overwritten. Indexes
+are removed when the input objects are released normally; after a process kill,
+unused `pepclip-index-*` temporary directories may require manual removal.
+
+SQLite uses an 8 MiB page cache and disk temporary storage. Feature validation
+reads approximately 4 MiB chunks; training reads individual rows into FP32
+without keeping the feature files mapped. The DataLoader uses zero workers,
+with no worker copies, pinned-memory queue or background prefetch. This trades
+I/O speed for controlled application memory. RAM usage for metadata no longer
+scales as a Python dict/list per dataset entry, though on-disk index size and
+initialization time still grow with dataset size.
+
+`shuffle_buffer` (default 65536 indices) bounds shuffle memory in this mode.
+A seeded replacement buffer shuffles the sorted training stream, covers every
+training pair exactly once per epoch, and merges a final singleton. This is
+**not a uniform global permutation**: batch membership and negatives differ
+from the original sampler, and nearby source IDs may remain correlated. Keep
+this setting fixed across model comparisons. Do not interpret it as an exact
+reproduction of an earlier global-shuffle run. Resume requires the same mode,
+buffer size, widths and batches; only the index location may change. The normal
+sampler retains its global shuffle but no longer builds all Python batch lists.
+
+Only `validation_mode: "batch"` is allowed with low-memory inputs, including
+standalone evaluation: full retrieval accumulates all projections and has
+quadratic comparison work. Checkpoints remain once per completed epoch; an
+interruption during an epoch restarts that epoch. There is no automatic OOM
+retry or batch reduction, since that would silently change CLIP negatives.
+
+This reduces dataset-size-dependent RAM growth; it is **not an unconditional
+OOM guarantee**. GPU usage still depends on batch, widths, output dimension,
+optimizer state, and other processes sharing memory. Start with the supplied
+batch 256, close memory-heavy applications, and verify on real inputs before
+long runs. If necessary choose a smaller batch explicitly and start a new run;
+record the changed negative count. FP16 storage is supported and converted to
+FP32 per row (10 million 2560+1600 vectors: about 83.2 GB FP16 or 166.4 GB FP32,
+excluding metadata/indexes/checkpoints). Synthetic CPU regression checks do not
+constitute a ten-million-sample or sustained MPS validation.
+
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -p 'test_low_memory.py'
+PYTHONPATH=src python -m unittest discover -s tests -p 'test_embeddings.py'
+```

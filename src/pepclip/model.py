@@ -13,10 +13,11 @@ class ProjectionHead(nn.Sequential):
 
 
 class PeptideCLIP(nn.Module):
-    def __init__(self, sequence_dim, graph_dim, hidden_dim=512, projection_dim=256):
+    def __init__(self, sequence_dim, graph_dim, hidden_dim=512, projection_dim=256,
+                 hidden_dim_a=0, hidden_dim_b=0):
         super().__init__()
-        self.sequence_head = ProjectionHead(sequence_dim, hidden_dim, projection_dim)
-        self.graph_head = ProjectionHead(graph_dim, hidden_dim, projection_dim)
+        self.sequence_head = ProjectionHead(sequence_dim, hidden_dim_a or hidden_dim, projection_dim)
+        self.graph_head = ProjectionHead(graph_dim, hidden_dim_b or hidden_dim, projection_dim)
 
     def encode_sequence(self, features):
         return F.normalize(self.sequence_head(features), dim=-1)
@@ -34,8 +35,10 @@ class EmbeddingCLIP(PeptideCLIP):
     Legacy state-dict names are retained for existing peptide checkpoints.
     No pretrained encoder is part of this module or its optimizer.
     """
-    def __init__(self, input_dim_a, input_dim_b, hidden_dim=512, projection_dim=256):
-        super().__init__(input_dim_a, input_dim_b, hidden_dim, projection_dim)
+    def __init__(self, input_dim_a, input_dim_b, hidden_dim=512, projection_dim=256,
+                 hidden_dim_a=0, hidden_dim_b=0):
+        super().__init__(input_dim_a, input_dim_b, hidden_dim, projection_dim,
+                         hidden_dim_a, hidden_dim_b)
 
     def encode_a(self, features):
         return self.encode_sequence(features)
