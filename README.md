@@ -1,5 +1,7 @@
 # PepCLIP
 
+IBM downstream evaluation deployment and commands: [IBM benchmark](docs/ibm_benchmark.md).
+
 The main training module accepts **any two sets of paired, precomputed embedding vectors** and trains only independent `Linear → GELU → Linear` projection heads using bidirectional CLIP loss. Input dimensions can differ. Training does not load or execute pretrained encoders and does not require RDKit, fair-esm, or GROVER. See the [precomputed embedding workflow](docs/precomputed_embeddings.md) for input formats, import, training, evaluation, resumption, and projection-only inference.
 
 The research application aligns PLM and molecular-graph representations of peptides. Its final encoder is the selected molecular graph encoder plus its trained projection head and L2 normalization; ESM2/GROVER is the initial combination. UniRef90 preparation and encoder extraction remain separate optional tools. Sequence-only UniRef90 filtering has completed (see [run summary](docs/data/uniref90-sequences-20261026.json)); full-scale graph construction/extraction and downstream validation remain pending. Real ESM2/GROVER sample inference has been measured in the [encoder benchmark](docs/benchmarks/20261026-encoder-extraction.md). Synthetic tests do not replace real-model validation.
