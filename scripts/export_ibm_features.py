@@ -38,6 +38,7 @@ def main():
     parser.add_argument("--batch-size", type=int, default=8)
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--limit", type=int, default=0, help="Smoke only; not benchmark features")
+    parser.add_argument("--quiet-rdkit-warnings", action="store_true")
     args = parser.parse_args()
     if args.batch_size < 1 or args.threads < 1 or args.limit < 0:
         parser.error("batch-size/threads must be positive; limit must be nonnegative")
@@ -51,6 +52,9 @@ def main():
     import numpy as np
     import torch
     from rdkit import Chem
+    if args.quiet_rdkit_warnings:
+        from rdkit import RDLogger
+        RDLogger.DisableLog("rdApp.warning")  # Errors and explicit validation remain enabled.
     from pepclip.encoders.grover import GroverEncoder
     from pepclip.inference import ProjectedEmbeddingEncoder
     from pepclip.utils import file_sha256
@@ -70,6 +74,7 @@ def main():
     report = dict(status="running", smoke=bool(args.limit), device=args.device,
                   model_load_seconds=time.monotonic() - load_started,
                   precision=args.precision, threads=args.threads,
+                  rdkit_warnings_suppressed=args.quiet_rdkit_warnings,
                   projection_sha256=file_sha256(args.projection_checkpoint),
                   encoder=actual, training_encoder=expected,
                   training_precision=projection.source_metadata["provenance"].get("precision"),
