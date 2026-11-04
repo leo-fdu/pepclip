@@ -101,6 +101,30 @@ a preliminary comparison, not the complete 25-seed benchmark. Resume with
 
 ## Validation
 
+### Five-seed raw GROVER versus concatenation
+
+Use `--representation grover-and-concat --feature-run <completed-feature-run>`
+to schedule both arms in one shared queue. With `--seeds 5 --workers 5
+--threads 3`, the queue has 40 evaluations and at most 15 compute threads.
+Job names include `:grover-base` or `:grover-pepclip-concat`; each arm has its
+own four aggregate CSVs. Resume uses the same `--run ... --resume` interface.
+
+Concatenation is raw GROVER (1600) followed by the existing L2-normalized
+PepCLIP graph projection (2048), with no additional scaling, training or
+normalization. Binding appends the same 320-dimensional target vector once,
+giving 3968 dimensions (1920 for the raw baseline). The representations are
+loaded from the same CSV-ordered export and checked against its hashes.
+
+`--reuse-grover-run <completed-baseline-run>` imports completed seeds only
+after matching protocol, dependency, input and output checksums. Original
+files remain unchanged; source provenance is recorded in the new config.
+The earlier queue source hash is allowed to differ for this scheduling/feature
+loading extension; other recorded inputs must match. Reusing seed 0 leaves
+36 new evaluations. Both arms retain 100 maximum trials, patience 20, five
+CV folds, identical seed IDs and explicit MCC/Spearman objectives. Actual
+trial counts can differ with early stopping. Thread counts govern compute
+pools, not CPU affinity or constant utilization.
+
 Queue counts, binding dependencies, completion markers and corrupt-output
 rejection have standard-library tests in `tests/test_ibm_queue.py`. Synthetic
 classification and regression workers completed five-fold, one-trial checks

@@ -11,6 +11,29 @@ spec.loader.exec_module(queue)
 
 
 class IBMQueueTests(unittest.TestCase):
+    def test_combined_jobs(self):
+        jobs = queue.evaluation_jobs(5, ["grover-base", "grover-pepclip-concat"])
+        self.assertEqual(len(jobs), 40)
+        self.assertIn("eval-binding-04:grover-pepclip-concat", jobs)
+        self.assertEqual(sum(j.endswith(":grover-base") for j in jobs), 20)
+
+    def test_concat_preserves_values_and_order(self):
+        import pickle
+        try:
+            import numpy as np
+        except ImportError:
+            self.skipTest("NumPy unavailable")
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            raw = np.array([[1, 2], [3, 4]], dtype=np.float32)
+            aligned = np.array([[0.5], [-0.5]], dtype=np.float32)
+            for name, array in [("grover-base", raw), ("pepclip", aligned)]:
+                with (folder / f"{name}_fixture.pickle").open("wb") as f:
+                    pickle.dump(array, f)
+            actual = queue.load_features(folder, "fixture", "grover-pepclip-concat")
+            np.testing.assert_array_equal(actual, [[1, 2, 0.5], [3, 4, -0.5]])
+            np.testing.assert_array_equal(queue.load_features(folder, "fixture", "grover-base"), raw)
+
     def test_seed_jobs_and_dependencies(self):
         jobs = queue.job_specs(25)
         self.assertEqual(len(jobs), 109)

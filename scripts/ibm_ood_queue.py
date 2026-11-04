@@ -12,12 +12,34 @@ import json
 import os
 from pathlib import Path
 import signal
+import shutil
 import subprocess
 import sys
 import time
 
 TASKS = ("antibacterial", "antiviral", "cpp", "binding")
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def components(representation):
+    return ("grover-base", "pepclip") if representation == "grover-pepclip-concat" else (representation,)
+
+
+def load_features(folder, dataset, representation):
+    import numpy as np
+    import pickle
+    arrays = []
+    for name in components(representation):
+        with (folder / f"{name}_{dataset}.pickle").open("rb") as f:
+            arrays.append(np.asarray(pickle.load(f), dtype=np.float32))
+    if any(a.ndim != 2 or not np.isfinite(a).all() for a in arrays):
+        raise ValueError("Invalid feature matrix")
+    return np.concatenate(arrays, axis=1) if len(arrays) > 1 else arrays[0]
+
+
+def evaluation_jobs(seeds, representations):
+    return {f"eval-{task}-{seed:02d}:{rep}": []
+            for seed in range(seeds) for task in TASKS for rep in representations}
 
 
 def sha(path):
@@ -79,7 +101,8 @@ def cached_inputs(source, ibm_root, representation):
             if (report["status"] != "complete" or report["smoke"]
                     or entry["source_rows"] != entry["exported_rows"]
                     or sha(ibm_root / "downstream_data" / f"{dataset}.csv") != entry["source_sha256"]
-                    or sha(folder / f"{representation}_{dataset}.pickle") != entry["files"][representation]["sha256"]):
+                    or any(sha(folder / f"{name}_{dataset}.pickle") != entry["files"][name]["sha256"]
+                           for name in components(representation))):
                 raise ValueError(f"Incomplete or changed cached dataset: {dataset}")
     return files
 
@@ -129,14 +152,14 @@ def target_job(run, job, attempt, config):
 def train_job(run, job, attempt, config):
     import numpy as np
     import pandas as pd
-    import pickle
     import optuna
     from autopeptideml.train import evaluate
     from run_ibm_evaluation import load_evaluator, trainer_class
-    _, task, seed_text = job.split("-")
+    base_job, _, job_representation = job.partition(":")
+    _, task, seed_text = base_job.split("-")
     seed = int(seed_text)
     source = Path(config.get("feature_run", run))
-    representation = config.get("representation", "pepclip")
+    representation = job_representation or config.get("representation", "pepclip")
     np.random.seed(seed)
     x, y = {}, {}
     for kind in ("c", "nc"):
@@ -146,8 +169,7 @@ def train_job(run, job, attempt, config):
         entry = report["datasets"][f"{kind}-{task}"]
         if report["status"] != "complete" or report["smoke"] or entry["source_rows"] != entry["exported_rows"]:
             raise ValueError("Incomplete benchmark features")
-        with (folder / f"{representation}_{kind}-{task}.pickle").open("rb") as f:
-            x[kind] = np.asarray(pickle.load(f), dtype=np.float32)
+        x[kind] = load_features(folder, f"{kind}-{task}", representation)
         df = pd.read_csv(Path(config["ibm_root"]) / "downstream_data" / f"{kind}-{task}.csv")
         y[kind] = df.labels.to_numpy()
         if task == "binding":
@@ -206,7 +228,7 @@ def aggregate(run, done, representation="pepclip"):
     for task in TASKS:
         rows = []
         for job, data in done.items():
-            if job.startswith(f"eval-{task}-"):
+            if job.startswith(f"eval-{task}-") and (":" not in job or job.endswith(":" + representation)):
                 with (run / data["attempt"] / "metrics.csv").open() as f:
                     rows.extend(csv.DictReader(f))
         if rows:
@@ -219,6 +241,45 @@ def aggregate(run, done, representation="pepclip"):
             tmp.replace(path)
 
 
+def reuse_evaluations(source, run, config):
+    """Copy verified baseline evaluations without changing the original run."""
+    previous = json.loads((source / "config.json").read_text())
+    if previous["representation"] != "grover-base":
+        raise ValueError("Reuse source must be raw GROVER")
+    for key in ("feature_run", "ibm_root", "threads", "trials", "mode", "device", "precision",
+                "patience", "cv_folds", "objectives", "sampler", "model_seed",
+                "package_versions", "benchmark_commit", "protocol", "target_model_revision"):
+        if previous.get(key) != config.get(key):
+            raise ValueError(f"Reuse protocol mismatch: {key}")
+    # The queue itself has changed only to support concatenation and scheduling.
+    # Every other recorded input must retain the exact hash of the baseline run.
+    for name, digest in previous["input_hashes"].items():
+        if Path(name).resolve() == Path(__file__).resolve():
+            continue
+        if config["input_hashes"].get(name) != digest or sha(name) != digest:
+            raise ValueError(f"Reuse input mismatch: {name}")
+    imported = []
+    for seed in range(min(previous["seeds"], config["seeds"])):
+        for task in TASKS:
+            old_job = f"eval-{task}-{seed:02d}"
+            data = completed(source, old_job)
+            if data is None:
+                continue
+            old_attempt = source / data["attempt"]
+            result = json.loads((old_attempt / "result.json").read_text())
+            if result["representation"] != "grover-base" or result["run_seed"] != seed or result["task"] != task:
+                raise ValueError("Reuse result identity mismatch")
+            job = old_job + ":grover-base"
+            attempt = run / "jobs" / job / "attempt-001"
+            shutil.copytree(old_attempt, attempt)
+            files = [attempt / Path(name).name for name in data["files"]]
+            mark_done(run, job, attempt, files)
+            imported.append(dict(job=job, source=str(old_attempt),
+                                 source_done_sha256=sha(source / "jobs" / old_job / "done.json")))
+    config["reused_evaluations"] = dict(source=str(source),
+        source_config_sha256=sha(source / "config.json"), jobs=imported)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--run", type=Path, required=True)
@@ -226,7 +287,8 @@ def main():
     p.add_argument("--grover-source", type=Path)
     p.add_argument("--grover-checkpoint", type=Path)
     p.add_argument("--projection-checkpoint", type=Path)
-    p.add_argument("--representation", choices=("pepclip", "grover-base"), default="pepclip")
+    p.add_argument("--representation", choices=("pepclip", "grover-base", "grover-pepclip-concat", "grover-and-concat"), default="pepclip")
+    p.add_argument("--reuse-grover-run", type=Path, help="Import completed GROVER seeds into a combined run")
     p.add_argument("--feature-run", type=Path, help="Reuse validated preparation jobs from an existing run")
     p.add_argument("--workers", type=int, default=3)
     p.add_argument("--threads", type=int, default=5)
@@ -248,6 +310,10 @@ def main():
         return
     if min(args.workers, args.threads, args.seeds, args.trials) < 1:
         p.error("Worker, thread, seed and trial counts must be positive")
+    if not args.resume and args.representation == "grover-and-concat" and not args.feature_run:
+        p.error("Combined evaluation requires --feature-run")
+    if args.reuse_grover_run and (args.resume or args.representation != "grover-and-concat"):
+        p.error("--reuse-grover-run requires a new combined run")
     if run.exists() and not args.resume:
         p.error("Run exists; use --resume")
     run.mkdir(parents=True, exist_ok=True)
@@ -277,8 +343,14 @@ def main():
         inputs += [f for f in snapshot.iterdir() if f.is_file()]
         if args.feature_run:
             config["feature_run"] = str(args.feature_run.resolve())
-            inputs += cached_inputs(args.feature_run.resolve(), Path(paths["ibm_root"]), args.representation)
+            selected = "grover-pepclip-concat" if args.representation == "grover-and-concat" else args.representation
+            inputs += cached_inputs(args.feature_run.resolve(), Path(paths["ibm_root"]), selected)
+        if args.representation == "grover-and-concat":
+            config["representations"] = ["grover-base", "grover-pepclip-concat"]
+        config["concatenation"] = "raw GROVER 1600 then cached L2-normalized PepCLIP 2048; no further scaling; binding target 320 appended once"
         config["input_hashes"] = {str(f):sha(f) for f in inputs}
+        if args.reuse_grover_run:
+            reuse_evaluations(args.reuse_grover_run.resolve(), run, config)
         write_json(run / "config.json", config)
     for filename, digest in config["input_hashes"].items():
         if sha(filename) != digest:
@@ -289,7 +361,11 @@ def main():
     jobs = job_specs(config["seeds"])
     if config.get("feature_run"):
         jobs = {job: [] for job in jobs if job.startswith("eval-")}
+    if config.get("representations"):
+        jobs = evaluation_jobs(config["seeds"], config["representations"])
     done = {job: data for job in jobs if (data := completed(run, job)) is not None}
+    for rep in config.get("representations", [config["representation"]]):
+        aggregate(run, done, rep)
     running, failed = {}, {}
     env = dict(os.environ, PYTHONPATH=str(ROOT/"src"), HF_HOME=str(ROOT/".cache/huggingface"),
                HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", MPLCONFIGDIR=str(ROOT/".cache/matplotlib"))
@@ -319,7 +395,8 @@ def main():
                             failed[job] = dict(error="Worker exited without completion marker")
                         else:
                             done[job] = data
-                            aggregate(run, done, config.get("representation", "pepclip"))
+                            for rep in config.get("representations", [config["representation"]]):
+                                aggregate(run, done, rep)
             if failed:
                 raise RuntimeError(f"Jobs failed: {failed}")
             for job,deps in jobs.items():
