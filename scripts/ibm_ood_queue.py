@@ -62,6 +62,28 @@ def mark_done(run, job, attempt, files):
         files={str(p.relative_to(run)): sha(p) for p in files}, finished=time.time()))
 
 
+def cached_inputs(source, ibm_root, representation):
+    """Validate complete preparation jobs and bind them to current CSV bytes."""
+    files = []
+    for job in job_specs(0):
+        data = completed(source, job)
+        if data is None:
+            raise ValueError(f"Missing cached preparation job: {job}")
+        files.append(source / "jobs" / job / "done.json")
+        files.extend(source / name for name in data["files"])
+        if job.startswith("feature-"):
+            dataset = job.removeprefix("feature-")
+            folder = source / data["attempt"] / "reps"
+            report = json.loads((folder / "export.json").read_text())
+            entry = report["datasets"][dataset]
+            if (report["status"] != "complete" or report["smoke"]
+                    or entry["source_rows"] != entry["exported_rows"]
+                    or sha(ibm_root / "downstream_data" / f"{dataset}.csv") != entry["source_sha256"]
+                    or sha(folder / f"{representation}_{dataset}.pickle") != entry["files"][representation]["sha256"]):
+                raise ValueError(f"Incomplete or changed cached dataset: {dataset}")
+    return files
+
+
 def feature_job(run, job, attempt, config):
     import export_ibm_features
     dataset = job.removeprefix("feature-")
@@ -113,22 +135,24 @@ def train_job(run, job, attempt, config):
     from run_ibm_evaluation import load_evaluator, trainer_class
     _, task, seed_text = job.split("-")
     seed = int(seed_text)
+    source = Path(config.get("feature_run", run))
+    representation = config.get("representation", "pepclip")
     np.random.seed(seed)
     x, y = {}, {}
     for kind in ("c", "nc"):
-        data = completed(run, f"feature-{kind}-{task}")
-        folder = run / data["attempt"] / "reps"
+        data = completed(source, f"feature-{kind}-{task}")
+        folder = source / data["attempt"] / "reps"
         report = json.loads((folder / "export.json").read_text())
         entry = report["datasets"][f"{kind}-{task}"]
         if report["status"] != "complete" or report["smoke"] or entry["source_rows"] != entry["exported_rows"]:
             raise ValueError("Incomplete benchmark features")
-        with (folder / f"pepclip_{kind}-{task}.pickle").open("rb") as f:
+        with (folder / f"{representation}_{kind}-{task}.pickle").open("rb") as f:
             x[kind] = np.asarray(pickle.load(f), dtype=np.float32)
         df = pd.read_csv(Path(config["ibm_root"]) / "downstream_data" / f"{kind}-{task}.csv")
         y[kind] = df.labels.to_numpy()
         if task == "binding":
-            target = completed(run, "targets")
-            x[kind] = np.concatenate([x[kind], np.load(run / target["attempt"] / f"{kind}-targets.npy")], axis=1)
+            target = completed(source, "targets")
+            x[kind] = np.concatenate([x[kind], np.load(source / target["attempt"] / f"{kind}-targets.npy")], axis=1)
         if len(x[kind]) != len(y[kind]) or not np.isfinite(x[kind]).all():
             raise ValueError("Feature/label mismatch")
     pred_task = "reg" if task == "binding" else "class"
@@ -171,14 +195,14 @@ def train_job(run, job, attempt, config):
     np.savez_compressed(attempt / "predictions.npz", predictions=np.stack(predictions), labels=y["nc"])
     np.savez_compressed(attempt / "cv_indices.npz", **{f"{kind}_{i}": a for i,pair in enumerate(trainer.train_folds) for kind,a in zip(("train","valid"),pair)})
     trainer.study.trials_dataframe().to_csv(attempt / "trials.csv", index=False)
-    write_json(attempt / "result.json", dict(task=task, run_seed=seed, objective=metric,
+    write_json(attempt / "result.json", dict(task=task, representation=representation, run_seed=seed, objective=metric,
         direction="maximize", trials=len(trainer.study.trials), best_config=trainer.best_config,
         effective_space=trainer.hpspace, seconds=time.monotonic()-started,
         train_rows=len(y["c"]), test_rows=len(y["nc"])))
     mark_done(run, job, attempt, [attempt / f for f in ("metrics.csv", "predictions.npz", "cv_indices.npz", "trials.csv", "result.json")])
 
 
-def aggregate(run, done):
+def aggregate(run, done, representation="pepclip"):
     for task in TASKS:
         rows = []
         for job, data in done.items():
@@ -186,7 +210,7 @@ def aggregate(run, done):
                 with (run / data["attempt"] / "metrics.csv").open() as f:
                     rows.extend(csv.DictReader(f))
         if rows:
-            path = run / f"{task}_pepclip.csv"
+            path = run / f"{task}_{representation}.csv"
             tmp = path.with_suffix(".tmp")
             with tmp.open("w", newline="") as f:
                 writer = csv.DictWriter(f, fieldnames=list(rows[0]))
@@ -202,6 +226,8 @@ def main():
     p.add_argument("--grover-source", type=Path)
     p.add_argument("--grover-checkpoint", type=Path)
     p.add_argument("--projection-checkpoint", type=Path)
+    p.add_argument("--representation", choices=("pepclip", "grover-base"), default="pepclip")
+    p.add_argument("--feature-run", type=Path, help="Reuse validated preparation jobs from an existing run")
     p.add_argument("--workers", type=int, default=3)
     p.add_argument("--threads", type=int, default=5)
     p.add_argument("--seeds", type=int, default=25)
@@ -232,7 +258,7 @@ def main():
     else:
         paths = {key: str(getattr(args, key).resolve()) for key in ("ibm_root", "grover_source", "grover_checkpoint", "projection_checkpoint")}
         config = dict(paths, workers=args.workers, threads=args.threads, seeds=args.seeds, trials=args.trials,
-            mode="natural-to-modified", representation="pepclip", device="cpu", precision="fp32",
+            mode="natural-to-modified", representation=args.representation, device="cpu", precision="fp32",
             patience=20, cv_folds=5, objectives={"binding":"spcc","classification":"mcc"},
             sampler="TPESampler(seed=run_seed)", model_seed="run_seed",
             target_model_revision="c731040fcd8d73dceaa04b0a8e6329b345b0f5df",
@@ -249,6 +275,9 @@ def main():
         if not snapshot.is_dir():
             raise ValueError("Download the pinned ESM2-8M target model before launching offline workers")
         inputs += [f for f in snapshot.iterdir() if f.is_file()]
+        if args.feature_run:
+            config["feature_run"] = str(args.feature_run.resolve())
+            inputs += cached_inputs(args.feature_run.resolve(), Path(paths["ibm_root"]), args.representation)
         config["input_hashes"] = {str(f):sha(f) for f in inputs}
         write_json(run / "config.json", config)
     for filename, digest in config["input_hashes"].items():
@@ -258,6 +287,8 @@ def main():
         if version(name) != expected:
             raise ValueError(f"Resume dependency changed: {name}")
     jobs = job_specs(config["seeds"])
+    if config.get("feature_run"):
+        jobs = {job: [] for job in jobs if job.startswith("eval-")}
     done = {job: data for job in jobs if (data := completed(run, job)) is not None}
     running, failed = {}, {}
     env = dict(os.environ, PYTHONPATH=str(ROOT/"src"), HF_HOME=str(ROOT/".cache/huggingface"),
@@ -288,7 +319,7 @@ def main():
                             failed[job] = dict(error="Worker exited without completion marker")
                         else:
                             done[job] = data
-                            aggregate(run, done)
+                            aggregate(run, done, config.get("representation", "pepclip"))
             if failed:
                 raise RuntimeError(f"Jobs failed: {failed}")
             for job,deps in jobs.items():

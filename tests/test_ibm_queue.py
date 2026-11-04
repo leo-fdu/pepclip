@@ -35,6 +35,36 @@ class IBMQueueTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             self.assertIsNone(queue.completed(Path(tmp), "example"))
 
+    def test_cached_inputs_reject_changed_csv(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "downstream_data").mkdir()
+            for job in queue.job_specs(0):
+                attempt = root / "jobs" / job / "attempt-001"
+                attempt.mkdir(parents=True)
+                if job == "targets":
+                    output = attempt / "targets.json"
+                    output.write_text('{}')
+                    queue.mark_done(root, job, attempt, [output])
+                    continue
+                dataset = job.removeprefix("feature-")
+                source = root / "downstream_data" / f"{dataset}.csv"
+                source.write_text('SMILES,labels\nC,1\n')
+                folder = attempt / "reps"
+                folder.mkdir()
+                feature = folder / f"grover-base_{dataset}.pickle"
+                feature.write_bytes(b'fixture')
+                report = folder / "export.json"
+                report.write_text(json.dumps(dict(status="complete", smoke=False,
+                    datasets={dataset: dict(source_rows=1, exported_rows=1,
+                        source_sha256=queue.sha(source),
+                        files={"grover-base": dict(sha256=queue.sha(feature))})})))
+                queue.mark_done(root, job, attempt, [feature, report])
+            self.assertTrue(queue.cached_inputs(root, root, "grover-base"))
+            source.write_text('SMILES,labels\nC,0\n')
+            with self.assertRaisesRegex(ValueError, "changed cached dataset"):
+                queue.cached_inputs(root, root, "grover-base")
+
 
 if __name__ == "__main__":
     unittest.main()

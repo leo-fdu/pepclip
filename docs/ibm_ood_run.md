@@ -71,6 +71,34 @@ they are partial until status reports `complete` and all 100 evaluations finish.
 Sleep pauses work unless the machine is kept awake. Agent Caffeine must be
 running for its hold to take effect; this launcher does not change power settings.
 
+## Raw GROVER baseline using cached IBM features
+
+The queue also accepts `--representation grover-base` and `--feature-run`.
+The latter reuses the eight completed feature jobs and binding targets from
+an existing run, after checking their completion hashes and current source CSVs.
+It schedules evaluation jobs only and leaves the source run unchanged. The
+raw 1600-dimensional GROVER vectors bypass the alignment projection. Results
+are named `{task}_grover-base.csv`; objectives, splits and HPO remain unchanged.
+
+For four concurrent tasks, seed 0 only, using three compute threads each:
+
+```bash
+PYTHONPATH=src .cache/ibm-venv/bin/python scripts/ibm_ood_queue.py \
+  --run outputs/ibm-grover-ood-seed0-20261104 \
+  --feature-run outputs/ibm-pepclip-ood-20261029 \
+  --representation grover-base \
+  --ibm-root .cache/ibm-peptide-benchmarks \
+  --grover-source .cache/encoder-benchmark/grover-source \
+  --grover-checkpoint .cache/grover_base.pt \
+  --projection-checkpoint outputs/mps-85-15-b512-20epochs/best.pt \
+  --workers 4 --threads 3 --seeds 1 --trials 100
+```
+
+The existing provenance arguments are retained; cached evaluation does not
+load the projection checkpoint or recompute either encoder. A single seed is
+a preliminary comparison, not the complete 25-seed benchmark. Resume with
+`--run outputs/ibm-grover-ood-seed0-20261104 --resume` after the coordinator stops.
+
 ## Validation
 
 Queue counts, binding dependencies, completion markers and corrupt-output
