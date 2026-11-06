@@ -43,7 +43,7 @@
     3,
     4
   ],
-  "workers": 5,
+  "workers": 4,
   "threads_per_worker": 3,
   "hpo_trials": 100
 }
