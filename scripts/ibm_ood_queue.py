@@ -37,9 +37,9 @@ def load_features(folder, dataset, representation):
     return np.concatenate(arrays, axis=1) if len(arrays) > 1 else arrays[0]
 
 
-def evaluation_jobs(seeds, representations):
+def evaluation_jobs(seeds, representations, tasks=TASKS):
     return {f"eval-{task}-{seed:02d}:{rep}": []
-            for seed in range(seeds) for task in TASKS for rep in representations}
+            for seed in (range(seeds) if isinstance(seeds, int) else seeds) for task in tasks for rep in representations}
 
 
 def sha(path):
@@ -291,6 +291,9 @@ def main():
     p.add_argument("--grover-checkpoint", type=Path)
     p.add_argument("--projection-checkpoint", type=Path)
     p.add_argument("--representation", choices=("pepclip", "grover-base", "grover-pepclip-concat", "grover-and-concat", "pepclip-and-concat"), default="pepclip")
+    p.add_argument("--representations", nargs="+", choices=("pepclip", "grover-base", "grover-pepclip-concat"))
+    p.add_argument("--tasks", nargs="+", choices=TASKS)
+    p.add_argument("--seed-ids", nargs="+", type=int)
     p.add_argument("--reuse-grover-run", type=Path, help="Import completed GROVER seeds into a combined run")
     p.add_argument("--feature-run", type=Path, help="Reuse validated preparation jobs from an existing run")
     p.add_argument("--workers", type=int, default=3)
@@ -311,6 +314,17 @@ def main():
         else:
             train_job(run, args.worker, args.attempt, config)
         return
+    if not args.resume:
+        for key in ("representations", "tasks", "seed_ids"):
+            values = getattr(args, key)
+            if values is not None and len(set(values)) != len(values):
+                p.error(f"Duplicate {key}")
+        if args.seed_ids is not None and any(not 0 <= seed < 2**32 for seed in args.seed_ids):
+            p.error("seed-ids must be nonnegative uint32 integers")
+        if any(getattr(args, key) is not None for key in ("representations", "tasks", "seed_ids")) and not args.feature_run:
+            p.error("Explicit evaluation selections require --feature-run")
+        if args.reuse_grover_run and any(getattr(args, key) is not None for key in ("representations", "tasks", "seed_ids")):
+            p.error("Explicit evaluation selections cannot import legacy GROVER jobs")
     if min(args.workers, args.threads, args.seeds, args.trials) < 1:
         p.error("Worker, thread, seed and trial counts must be positive")
     if not args.resume and args.representation in {"grover-and-concat", "pepclip-and-concat"} and not args.feature_run:
@@ -347,11 +361,17 @@ def main():
         if args.feature_run:
             config["feature_run"] = str(args.feature_run.resolve())
             selected = "grover-pepclip-concat" if args.representation in {"grover-and-concat", "pepclip-and-concat"} else args.representation
-            inputs += cached_inputs(args.feature_run.resolve(), Path(paths["ibm_root"]), selected, Path(paths["projection_checkpoint"]))
+            for rep in args.representations or [selected]:
+                inputs += cached_inputs(args.feature_run.resolve(), Path(paths["ibm_root"]), rep, Path(paths["projection_checkpoint"]))
         if args.representation == "grover-and-concat":
             config["representations"] = ["grover-base", "grover-pepclip-concat"]
         if args.representation == "pepclip-and-concat":
             config["representations"] = ["pepclip", "grover-pepclip-concat"]
+        if any(getattr(args, key) is not None for key in ("representations", "tasks", "seed_ids")):
+            config["representations"] = args.representations or config.get("representations", [args.representation])
+            config["tasks"] = args.tasks or list(TASKS)
+            config["seed_ids"] = args.seed_ids if args.seed_ids is not None else list(range(args.seeds))
+            config["seeds"] = len(config["seed_ids"])
         config["concatenation"] = "raw GROVER 1600 then cached L2-normalized PepCLIP 2048; no further scaling; binding target 320 appended once"
         config["input_hashes"] = {str(f):sha(f) for f in inputs}
         if args.reuse_grover_run:
@@ -367,7 +387,7 @@ def main():
     if config.get("feature_run"):
         jobs = {job: [] for job in jobs if job.startswith("eval-")}
     if config.get("representations"):
-        jobs = evaluation_jobs(config["seeds"], config["representations"])
+        jobs = evaluation_jobs(config.get("seed_ids", config["seeds"]), config["representations"], config.get("tasks", TASKS))
     done = {job: data for job in jobs if (data := completed(run, job)) is not None}
     for rep in config.get("representations", [config["representation"]]):
         aggregate(run, done, rep)
