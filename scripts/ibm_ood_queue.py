@@ -84,7 +84,7 @@ def mark_done(run, job, attempt, files):
         files={str(p.relative_to(run)): sha(p) for p in files}, finished=time.time()))
 
 
-def cached_inputs(source, ibm_root, representation):
+def cached_inputs(source, ibm_root, representation, projection_checkpoint=None):
     """Validate complete preparation jobs and bind them to current CSV bytes."""
     files = []
     for job in job_specs(0):
@@ -98,6 +98,9 @@ def cached_inputs(source, ibm_root, representation):
             folder = source / data["attempt"] / "reps"
             report = json.loads((folder / "export.json").read_text())
             entry = report["datasets"][dataset]
+            if projection_checkpoint is not None and "pepclip" in components(representation):
+                if report.get("projection_sha256") != sha(projection_checkpoint):
+                    raise ValueError("Cached projection checkpoint mismatch")
             if (report["status"] != "complete" or report["smoke"]
                     or entry["source_rows"] != entry["exported_rows"]
                     or sha(ibm_root / "downstream_data" / f"{dataset}.csv") != entry["source_sha256"]
@@ -287,7 +290,7 @@ def main():
     p.add_argument("--grover-source", type=Path)
     p.add_argument("--grover-checkpoint", type=Path)
     p.add_argument("--projection-checkpoint", type=Path)
-    p.add_argument("--representation", choices=("pepclip", "grover-base", "grover-pepclip-concat", "grover-and-concat"), default="pepclip")
+    p.add_argument("--representation", choices=("pepclip", "grover-base", "grover-pepclip-concat", "grover-and-concat", "pepclip-and-concat"), default="pepclip")
     p.add_argument("--reuse-grover-run", type=Path, help="Import completed GROVER seeds into a combined run")
     p.add_argument("--feature-run", type=Path, help="Reuse validated preparation jobs from an existing run")
     p.add_argument("--workers", type=int, default=3)
@@ -310,7 +313,7 @@ def main():
         return
     if min(args.workers, args.threads, args.seeds, args.trials) < 1:
         p.error("Worker, thread, seed and trial counts must be positive")
-    if not args.resume and args.representation == "grover-and-concat" and not args.feature_run:
+    if not args.resume and args.representation in {"grover-and-concat", "pepclip-and-concat"} and not args.feature_run:
         p.error("Combined evaluation requires --feature-run")
     if args.reuse_grover_run and (args.resume or args.representation != "grover-and-concat"):
         p.error("--reuse-grover-run requires a new combined run")
@@ -343,10 +346,12 @@ def main():
         inputs += [f for f in snapshot.iterdir() if f.is_file()]
         if args.feature_run:
             config["feature_run"] = str(args.feature_run.resolve())
-            selected = "grover-pepclip-concat" if args.representation == "grover-and-concat" else args.representation
-            inputs += cached_inputs(args.feature_run.resolve(), Path(paths["ibm_root"]), selected)
+            selected = "grover-pepclip-concat" if args.representation in {"grover-and-concat", "pepclip-and-concat"} else args.representation
+            inputs += cached_inputs(args.feature_run.resolve(), Path(paths["ibm_root"]), selected, Path(paths["projection_checkpoint"]))
         if args.representation == "grover-and-concat":
             config["representations"] = ["grover-base", "grover-pepclip-concat"]
+        if args.representation == "pepclip-and-concat":
+            config["representations"] = ["pepclip", "grover-pepclip-concat"]
         config["concatenation"] = "raw GROVER 1600 then cached L2-normalized PepCLIP 2048; no further scaling; binding target 320 appended once"
         config["input_hashes"] = {str(f):sha(f) for f in inputs}
         if args.reuse_grover_run:

@@ -17,6 +17,12 @@ class IBMQueueTests(unittest.TestCase):
         self.assertIn("eval-binding-04:grover-pepclip-concat", jobs)
         self.assertEqual(sum(j.endswith(":grover-base") for j in jobs), 20)
 
+    def test_checkpoint_sweep_jobs(self):
+        jobs = queue.evaluation_jobs(5, ["pepclip", "grover-pepclip-concat"])
+        self.assertEqual(len(jobs), 40)
+        self.assertEqual(sum(j.endswith(":pepclip") for j in jobs), 20)
+        self.assertEqual(len({(epoch, job) for epoch in (5, 10, 15, 20) for job in jobs}), 160)
+
     def test_concat_preserves_values_and_order(self):
         import pickle
         try:
@@ -84,6 +90,10 @@ class IBMQueueTests(unittest.TestCase):
                         files={"grover-base": dict(sha256=queue.sha(feature))})})))
                 queue.mark_done(root, job, attempt, [feature, report])
             self.assertTrue(queue.cached_inputs(root, root, "grover-base"))
+            checkpoint = root / "checkpoint.pt"
+            checkpoint.write_bytes(b"new checkpoint")
+            with self.assertRaisesRegex(ValueError, "checkpoint mismatch"):
+                queue.cached_inputs(root, root, "pepclip", checkpoint)
             source.write_text('SMILES,labels\nC,0\n')
             with self.assertRaisesRegex(ValueError, "changed cached dataset"):
                 queue.cached_inputs(root, root, "grover-base")
