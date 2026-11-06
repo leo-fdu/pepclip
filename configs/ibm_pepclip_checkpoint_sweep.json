@@ -1,0 +1,48 @@
+{
+  "run": "outputs/ibm-pepclip-checkpoint-sweep-5seeds-20261107",
+  "feature_source": "outputs/ibm-pepclip-ood-20261029",
+  "ibm_root": ".cache/ibm-peptide-benchmarks",
+  "grover_source": ".cache/encoder-benchmark/grover-source",
+  "grover_checkpoint": ".cache/grover_base.pt",
+  "checkpoints": [
+    {
+      "name": "epoch-05",
+      "path": "outputs/mps-85-15-b512-20epochs/epoch_0005.pt",
+      "epoch": 5
+    },
+    {
+      "name": "epoch-10",
+      "path": "outputs/mps-85-15-b512-20epochs/epoch_0010.pt",
+      "epoch": 10
+    },
+    {
+      "name": "epoch-15",
+      "path": "outputs/mps-85-15-b512-20epochs/epoch_0015.pt",
+      "epoch": 15
+    },
+    {
+      "name": "epoch-20",
+      "path": "outputs/mps-85-15-b512-20epochs/epoch_0020.pt",
+      "epoch": 20
+    }
+  ],
+  "representations": [
+    "pepclip"
+  ],
+  "tasks": [
+    "antibacterial",
+    "antiviral",
+    "cpp",
+    "binding"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "workers": 4,
+  "threads_per_worker": 3,
+  "hpo_trials": 100
+}
