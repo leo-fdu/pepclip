@@ -25,11 +25,12 @@ checkpoint files are never modified. An inherited best from before epoch 21
 is also supported, but is evaluated anew unless it matches epoch 25 or 30.
 
 One benchmark command executes at a time. While training has not published
-epoch 30, a new queue uses one worker and one compute thread, alongside the
+epoch 30, a new queue uses two workers with one compute thread each, alongside the
 training configuration's ten compute threads and one reader. New queues after
 epoch 30 use four workers and three threads. An already running queue retains
 its original resources; epoch 30 and best may wait for epoch 25 to finish.
-This provides nominal CPU headroom, not hard CPU affinity or an OOM guarantee.
+This increases overlap throughput but does not guarantee three idle CPU cores,
+hard CPU affinity or absence of OOM.
 Projection preparation uses one thread. Native compute thread environment
 variables are also bounded per child command.
 

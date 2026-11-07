@@ -104,7 +104,7 @@ def main():
     args = parser.parse_args(); config = load_config(args.config)
     if args.dry_run:
         print(json.dumps(dict(config=config, evaluations='40-60', checkpoints=[25,30,'final best'],
-                             overlap_resources='1 worker x 1 thread', later_resources='4 workers x 3 threads'), indent=2))
+                             overlap_resources='2 workers x 1 thread', later_resources='4 workers x 3 threads'), indent=2))
         return
     import torch
     torch.set_num_threads(1)
@@ -141,7 +141,7 @@ def main():
                     if 'workers' not in pending:
                         # Keep a queue's resources immutable, including on resume.
                         finished = 'epoch-30' in state['entries']
-                        pending.update(workers=4 if finished else 1, threads=3 if finished else 1)
+                        pending.update(workers=4 if finished else 2, threads=3 if finished else 1)
                     cmd = commands(config, pending, pending['stage'])
                     caffeine = shutil.which('agent-caffeine')
                     if caffeine:
