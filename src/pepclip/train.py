@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 from dataclasses import asdict, dataclass
 import json
 import math
@@ -26,6 +27,9 @@ class TrainConfig:
     hidden_dim_a: int = 0  # 0 inherits legacy hidden_dim
     hidden_dim_b: int = 0
     low_memory: int = 0  # schema-2 disk index and bounded shuffle
+    batch_reads: int = 0  # opt-in bounded disk batch reader
+    prefetch_batches: int = 0  # 0 or 1 extra CPU batch
+    cpu_threads: int = 0  # 0 preserves runtime default
     index_dir: str = ""  # temporary disk index parent; empty uses system temp
     shuffle_buffer: int = 65536
     projection_dim: int = 256
@@ -42,6 +46,15 @@ class TrainConfig:
     device: str = "cpu"
 
     def validate(self):
+        for key in ("batch_reads", "prefetch_batches"):
+            if type(getattr(self, key)) is not int or getattr(self, key) not in (0, 1):
+                raise ValueError(f"Invalid {key}")
+        if self.batch_reads and not self.low_memory:
+            raise ValueError("batch_reads requires low_memory")
+        if self.prefetch_batches and not self.batch_reads:
+            raise ValueError("prefetch_batches requires batch_reads")
+        if type(self.cpu_threads) is not int or self.cpu_threads < 0:
+            raise ValueError("Invalid cpu_threads")
         if type(self.learnable_temperature) is not int or self.learnable_temperature not in (0, 1):
             raise ValueError("Invalid learnable_temperature")
         if self.learnable_temperature and not 0.01 <= self.temperature <= 1.0:
@@ -166,6 +179,10 @@ def model_from_checkpoint(checkpoint, device="cpu"):
 
 def train(manifest, cache_a, cache_b, output, config, resume=None):
     config.validate()
+    if config.cpu_threads:
+        torch.set_num_threads(config.cpu_threads)
+        if torch.get_num_interop_threads() != 1:
+            torch.set_num_interop_threads(1)
     print(json.dumps(dict(event="loading_inputs", low_memory=config.low_memory)), flush=True)
     rows, a, b, provenance = load_inputs(manifest, cache_a, cache_b, config)
     training = PairedFeatures(rows, a, b, "train")
@@ -198,7 +215,7 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
             previous_config.update(validation_mode="retrieval",
                                    validation_batch_size=previous_config["batch_size"])
         for key, value in asdict(config).items():
-            if key not in {"epochs", "device", "index_dir", "save_every"} and previous_config[key] != value:
+            if key not in {"epochs", "device", "index_dir", "save_every", "batch_reads", "prefetch_batches", "cpu_threads"} and previous_config[key] != value:
                 raise ValueError(f"Resume config changed: {key}")
         if checkpoint["provenance"] != provenance:
             raise ValueError("Resume data/encoder provenance mismatch")
@@ -232,23 +249,28 @@ def train(manifest, cache_a, cache_b, output, config, resume=None):
         epoch_started = time.monotonic()
         sampler = BufferedBatches if config.low_memory else ContrastiveBatches
         extra = dict(buffer_size=config.shuffle_buffer) if config.low_memory else {}
-        loader = DataLoader(training, batch_sampler=sampler(
-            len(training), config.batch_size, config.seed + epoch, **extra), num_workers=0)
-        for step, (a, b) in enumerate(loader, 1):
-            optimizer.zero_grad(set_to_none=True)
-            z_a, z_b = model(a.to(config.device), b.to(config.device))
-            loss = clip_loss(z_a, z_b, model.loss_temperature(config.temperature))
-            if not torch.isfinite(loss):
-                raise ValueError("Nonfinite training loss")
-            loss.backward()
-            optimizer.step()
-            model.clamp_temperature()
-            total += loss.item() * len(a)
-            count += len(a)
-            if step == 1 or step % 1000 == 0:
-                print(json.dumps(dict(event="training_progress", epoch=epoch+1, step=step,
-                    samples=count, train_samples=len(training), mean_loss=total/count,
-                    elapsed_seconds=round(time.monotonic()-epoch_started, 1))), flush=True)
+        batches = sampler(len(training), config.batch_size, config.seed + epoch, **extra)
+        if config.batch_reads:
+            from .disk_data import disk_batches
+            context = disk_batches(training, batches, bool(config.prefetch_batches))
+        else:
+            context = nullcontext(DataLoader(training, batch_sampler=batches, num_workers=0))
+        with context as loader:
+            for step, (a, b) in enumerate(loader, 1):
+                optimizer.zero_grad(set_to_none=True)
+                z_a, z_b = model(a.to(config.device), b.to(config.device))
+                loss = clip_loss(z_a, z_b, model.loss_temperature(config.temperature))
+                if not torch.isfinite(loss):
+                    raise ValueError("Nonfinite training loss")
+                loss.backward()
+                optimizer.step()
+                model.clamp_temperature()
+                total += loss.item() * len(a)
+                count += len(a)
+                if step == 1 or step % 1000 == 0:
+                    print(json.dumps(dict(event="training_progress", epoch=epoch+1, step=step,
+                        samples=count, train_samples=len(training), mean_loss=total/count,
+                        elapsed_seconds=round(time.monotonic()-epoch_started, 1))), flush=True)
         metrics = evaluate(model, validation, config.device, config.validation_batch_size,
                            config.temperature, config.validation_mode)
         if not math.isfinite(metrics["loss"]):

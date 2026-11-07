@@ -59,6 +59,40 @@ class LowMemoryTests(unittest.TestCase):
                 for x, y in zip(a[i], b[i]):
                     torch.testing.assert_close(x, y)
 
+    def test_batch_reader_order_duplicates_chunking_and_cleanup(self):
+        from pepclip.disk_data import disk_batches
+        import threading
+        inputs = load_inputs(self.manifest, *self.paths, TrainConfig(low_memory=1))
+        data = PairedFeatures(*inputs[:3], 'train')
+        batches = [[6, 0, 3, 3, 1], [i % 7 for i in range(1100)], [4, 2]]
+        for prefetch in (False, True):
+            with disk_batches(data, batches, prefetch) as loader:
+                for indices, actual in zip(batches, loader):
+                    expected = tuple(torch.stack(v) for v in zip(*(data[i] for i in indices)))
+                    for x, y in zip(actual, expected):
+                        torch.testing.assert_close(x, y, rtol=0, atol=0)
+            with disk_batches(data, batches, prefetch) as loader:
+                next(loader)  # consumer exits before exhausting the prefetch
+            with self.assertRaises(IndexError):
+                with disk_batches(data, [[10000]], prefetch) as loader:
+                    next(loader)
+        self.assertFalse(any(t.name.startswith('pepclip-reader') for t in threading.enumerate()))
+
+    def test_optimized_training_and_resume_match_original_weights(self):
+        config = TrainConfig(hidden_dim=8, projection_dim=3, low_memory=1,
+                             batch_size=3, validation_batch_size=2, epochs=2)
+        with contextlib.redirect_stdout(io.StringIO()):
+            baseline = train(self.manifest, *self.paths, self.root / 'base', config)
+            partial = train(self.manifest, *self.paths, self.root / 'part', replace(config, epochs=1))
+            optimized = replace(config, batch_reads=1, prefetch_batches=1)
+            direct = train(self.manifest, *self.paths, self.root / 'opt', optimized)
+            resumed = train(self.manifest, *self.paths, self.root / 'resume-opt', optimized, partial)
+        expected = load_checkpoint(baseline)
+        for path in (direct, resumed):
+            actual = load_checkpoint(path)
+            for key in expected['model']:
+                torch.testing.assert_close(expected['model'][key], actual['model'][key], rtol=0, atol=0)
+
     def test_duplicate_missing_and_cross_split_group_rejected(self):
         variants = [self.records + [self.records[0]],
                     self.records + [dict(sample_id='absent', split='train')],

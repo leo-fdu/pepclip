@@ -15,5 +15,8 @@
   "shuffle_buffer": 65536,
   "index_dir": "",
   "learnable_temperature": 1,
-  "save_every": 5
+  "save_every": 5,
+  "batch_reads": 1,
+  "prefetch_batches": 1,
+  "cpu_threads": 10
 }
