@@ -1,0 +1,13 @@
+{
+  "training": "outputs/mps-85-15-b512-30epochs-batch-prefetch",
+  "previous_training": "outputs/mps-85-15-b512-20epochs",
+  "training_launch": "outputs/mps-85-15-b512-30epochs-batch-prefetch-launch.json",
+  "run": "outputs/ibm-watch-25-30-best-5seeds",
+  "python": ".cache/ibm-venv/bin/python",
+  "feature_source": "outputs/ibm-pepclip-ood-20261029",
+  "ibm_root": ".cache/ibm-peptide-benchmarks",
+  "grover_source": ".cache/encoder-benchmark/grover-source",
+  "grover_checkpoint": ".cache/grover_base.pt",
+  "seeds": [0, 1, 2, 3, 4],
+  "poll_seconds": 20
+}
