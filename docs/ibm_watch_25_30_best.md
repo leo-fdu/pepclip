@@ -25,7 +25,7 @@ checkpoint files are never modified. An inherited best from before epoch 21
 is also supported, but is evaluated anew unless it matches epoch 25 or 30.
 
 One benchmark command executes at a time. While training has not published
-epoch 30, a new queue uses two workers with one compute thread each, alongside the
+epoch 30, a new queue uses three workers with two compute threads each, alongside the
 training configuration's ten compute threads and one reader. New queues after
 epoch 30 use four workers and three threads. An already running queue retains
 its original resources; epoch 30 and best may wait for epoch 25 to finish.
